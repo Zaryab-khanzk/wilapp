@@ -7,9 +7,9 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('WILAPP - Login'),
+        title: const Text('WIL  Login'),
         centerTitle: true,
-        backgroundColor: Colors.blue[700],
+        backgroundColor: Colors.yellowAccent[700],
         foregroundColor: Colors.white,
       ),
       body: Padding(
@@ -21,7 +21,11 @@ class LoginScreen extends StatelessWidget {
               const SizedBox(height: 40),
 
               // App Logo / Icon
-              Icon(Icons.work_outline, size: 80, color: Colors.blue[700]),
+              Icon(
+                Icons.work_outline,
+                size: 80,
+                color: Colors.yellowAccent[700],
+              ),
               const SizedBox(height: 24),
 
               const Text(
@@ -84,13 +88,13 @@ class LoginScreen extends StatelessWidget {
                     // TODO: Implement actual login logic later
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Login Successful! 🎉'),
+                        content: Text('Login Successful!'),
                         backgroundColor: Colors.green,
                       ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue[700],
+                    backgroundColor: Colors.yellowAccent[700],
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
