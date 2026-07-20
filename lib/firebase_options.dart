@@ -15,6 +15,22 @@ import 'package:flutter/foundation.dart'
 /// );
 /// ```
 class DefaultFirebaseOptions {
+  static const String _webApiKey = String.fromEnvironment(
+    'FIREBASE_WEB_API_KEY',
+  );
+  static const String _androidApiKey = String.fromEnvironment(
+    'FIREBASE_ANDROID_API_KEY',
+  );
+  static const String _iosApiKey = String.fromEnvironment(
+    'FIREBASE_IOS_API_KEY',
+  );
+  static const String _macosApiKey = String.fromEnvironment(
+    'FIREBASE_MACOS_API_KEY',
+  );
+  static const String _windowsApiKey = String.fromEnvironment(
+    'FIREBASE_WINDOWS_API_KEY',
+  );
+
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
       return web;
@@ -41,7 +57,7 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCiFNfDjYAfvsXB_Z3x5T2kxEgKjEbmvOA',
+    apiKey: _webApiKey,
     appId: '1:1004386639130:web:d9b059a205159a8f27a0a3',
     messagingSenderId: '1004386639130',
     projectId: 'wilapp-auth-project',
@@ -51,7 +67,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAxseJ5_IlkdxJnAO_s6L1hmjF-DpnU3ao',
+    apiKey: _androidApiKey,
     appId: '1:1004386639130:android:19e336f4fc30f82027a0a3',
     messagingSenderId: '1004386639130',
     projectId: 'wilapp-auth-project',
@@ -59,7 +75,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCXMQbpURqnnvRD-ZUKGAfuoN2bZZWrI8Y',
+    apiKey: _iosApiKey,
     appId: '1:1004386639130:ios:1d62a79365b1d2db27a0a3',
     messagingSenderId: '1004386639130',
     projectId: 'wilapp-auth-project',
@@ -68,7 +84,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCXMQbpURqnnvRD-ZUKGAfuoN2bZZWrI8Y',
+    apiKey: _macosApiKey,
     appId: '1:1004386639130:ios:1d62a79365b1d2db27a0a3',
     messagingSenderId: '1004386639130',
     projectId: 'wilapp-auth-project',
@@ -77,7 +93,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyCiFNfDjYAfvsXB_Z3x5T2kxEgKjEbmvOA',
+    apiKey: _windowsApiKey,
     appId: '1:1004386639130:web:bb84c9b2df00474427a0a3',
     messagingSenderId: '1004386639130',
     projectId: 'wilapp-auth-project',
