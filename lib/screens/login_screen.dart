@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/colors/app_colors.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -7,9 +8,9 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('WIL  Login'),
+        title: const Text('WIL Login'),
         centerTitle: true,
-        backgroundColor: Colors.yellowAccent[700],
+        backgroundColor: Colors.black,
         foregroundColor: Colors.white,
       ),
       body: Padding(
@@ -21,11 +22,7 @@ class LoginScreen extends StatelessWidget {
               const SizedBox(height: 40),
 
               // App Logo / Icon
-              Icon(
-                Icons.work_outline,
-                size: 80,
-                color: Colors.yellowAccent[700],
-              ),
+              Icon(Icons.work_outline, size: 80, color: AppColors.primary),
               const SizedBox(height: 24),
 
               const Text(
@@ -35,7 +32,7 @@ class LoginScreen extends StatelessWidget {
               const SizedBox(height: 8),
               const Text(
                 'Sign in to continue',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+                style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
               ),
 
               const SizedBox(height: 40),
@@ -47,7 +44,7 @@ class LoginScreen extends StatelessWidget {
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.person_outline),
                   filled: true,
-                  fillColor: Colors.grey[50],
+                  fillColor: AppColors.surface,
                 ),
                 keyboardType: TextInputType.emailAddress,
               ),
@@ -62,7 +59,7 @@ class LoginScreen extends StatelessWidget {
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.lock_outline),
                   filled: true,
-                  fillColor: Colors.grey[50],
+                  fillColor: AppColors.surface,
                 ),
               ),
 
@@ -85,17 +82,15 @@ class LoginScreen extends StatelessWidget {
                 height: 52,
                 child: ElevatedButton(
                   onPressed: () {
-                    // space for actual logic.......
-
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Login Successful!'),
-                        backgroundColor: Colors.green,
+                        backgroundColor: AppColors.success,
                       ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.yellowAccent[700],
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/colors/app_colors.dart';
 import 'login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -13,7 +14,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    Future.delayed(const Duration(seconds: 5), () {
+    Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         Navigator.pushReplacement(
           context,
@@ -26,7 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black87,
+      backgroundColor: AppColors.darkBackground,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -37,27 +38,25 @@ class _SplashScreenState extends State<SplashScreen> {
               width: 120,
             ),
             const SizedBox(height: 30),
-            const Center(
-              child: Text(
-                'Wah Industries Limited',
-                textAlign: TextAlign.center, // Ensures centering if text wraps
-                style: TextStyle(
-                  fontSize: 38,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.yellowAccent,
-                  letterSpacing: 3,
-                ),
+            const Text(
+              'Wah Industries Limited',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 38,
+                fontWeight: FontWeight.bold,
+                color: AppColors.primary,
+                letterSpacing: 3,
               ),
             ),
             const SizedBox(height: 8),
             const Text(
               'Employee Management System',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, color: Colors.yellowAccent),
+              style: TextStyle(fontSize: 16, color: AppColors.primary),
             ),
             const SizedBox(height: 50),
             const CircularProgressIndicator(
-              color: Colors.yellowAccent,
+              color: AppColors.primary,
               strokeWidth: 3,
             ),
           ],
