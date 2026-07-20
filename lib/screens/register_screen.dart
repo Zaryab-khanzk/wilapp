@@ -1,43 +1,45 @@
 import 'package:flutter/material.dart';
 import '../../core/colors/app_colors.dart';
 import '../core/services/auth_service.dart';
-import 'forgot_password_screen.dart';
-import 'register_screen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _petNameController = TextEditingController();
   bool _isLoading = false;
 
-  void _handleLogin() async {
-    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+  void _handleRegister() async {
+    if (_emailController.text.isEmpty ||
+        _passwordController.text.isEmpty ||
+        _petNameController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in all fields')),
+        const SnackBar(content: Text('Please fill out all fields')),
       );
       return;
     }
 
     setState(() => _isLoading = true);
     try {
-      await AuthService().loginUser(
+      await AuthService().registerUser(
         email: _emailController.text,
         password: _passwordController.text,
+        securityAnswer: _petNameController.text,
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Login Successful!'),
+            content: Text('Account Created Successfully! Please login.'),
             backgroundColor: AppColors.success,
           ),
         );
-        // TODO: Navigate to home screen here
+        Navigator.pop(context); // Go back to Login Screen
       }
     } catch (e) {
       if (mounted) {
@@ -57,8 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('WIL Login'),
-        centerTitle: true,
+        title: const Text('Register Account'),
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
       ),
@@ -66,33 +67,21 @@ class _LoginScreenState extends State<LoginScreen> {
         padding: const EdgeInsets.all(24.0),
         child: SingleChildScrollView(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(height: 40),
-              const Icon(
-                Icons.work_outline,
-                size: 80,
-                color: AppColors.primary,
-              ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               const Text(
-                'Welcome Back!',
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                'Create Your Account',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 8),
-              const Text(
-                'Sign in to continue',
-                style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
-              ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 30),
 
-              // Email Field
+              // Email
               TextField(
                 controller: _emailController,
                 decoration: const InputDecoration(
                   labelText: 'Email',
                   border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.person_outline),
+                  prefixIcon: Icon(Icons.email_outlined),
                   filled: true,
                   fillColor: AppColors.surface,
                 ),
@@ -100,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Password Field
+              // Password
               TextField(
                 controller: _passwordController,
                 obscureText: true,
@@ -112,31 +101,27 @@ class _LoginScreenState extends State<LoginScreen> {
                   fillColor: AppColors.surface,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 20),
 
-              // Forgot Password Link
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ForgotPasswordScreen(),
-                      ),
-                    );
-                  },
-                  child: const Text('Forgot Password?'),
+              // Security Question (Pet Name)
+              TextField(
+                controller: _petNameController,
+                decoration: const InputDecoration(
+                  labelText: 'Security Q: What was your first pet\'s name?',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.pets_outlined),
+                  filled: true,
+                  fillColor: AppColors.surface,
                 ),
               ),
               const SizedBox(height: 30),
 
-              // Login Button
+              // Register Button
               SizedBox(
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: _isLoading ? null : _handleLogin,
+                  onPressed: _isLoading ? null : _handleRegister,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.black,
@@ -147,33 +132,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.black)
                       : const Text(
-                          'LOGIN',
+                          'REGISTER',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                 ),
-              ),
-              const SizedBox(height: 20),
-
-              // Register Option
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("Don't have an account?"),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const RegisterScreen(),
-                        ),
-                      );
-                    },
-                    child: const Text('Register Here'),
-                  ),
-                ],
               ),
             ],
           ),
