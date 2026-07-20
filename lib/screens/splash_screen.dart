@@ -37,18 +37,22 @@ class _SplashScreenState extends State<SplashScreen> {
               width: 120,
             ),
             const SizedBox(height: 30),
-            const Text(
-              'Wah Industries Limited',
-              style: TextStyle(
-                fontSize: 38,
-                fontWeight: FontWeight.bold,
-                color: Colors.yellowAccent,
-                letterSpacing: 3,
+            const Center(
+              child: Text(
+                'Wah Industries Limited',
+                textAlign: TextAlign.center, // Ensures centering if text wraps
+                style: TextStyle(
+                  fontSize: 38,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.yellowAccent,
+                  letterSpacing: 3,
+                ),
               ),
             ),
             const SizedBox(height: 8),
             const Text(
               'Employee Management System',
+              textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16, color: Colors.yellowAccent),
             ),
             const SizedBox(height: 50),
