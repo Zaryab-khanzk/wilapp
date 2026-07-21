@@ -34,8 +34,8 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             Image.asset(
               'assets/icons/app_icon_nobg.png',
-              height: 120,
-              width: 120,
+              height: 150,
+              width: 150,
             ),
             const SizedBox(height: 30),
             const Text(
