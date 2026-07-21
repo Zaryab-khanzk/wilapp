@@ -71,11 +71,11 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 40),
               Image.asset(
                 'assets/icons/app_icon_nobg.png',
-                width: 80,
-                height: 80,
+                width: 140,
+                height: 140,
                 fit: BoxFit.contain,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 14),
               const Text(
                 'Welcome Back!',
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
