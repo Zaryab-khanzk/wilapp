@@ -34,17 +34,17 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             Image.asset(
               'assets/icons/app_icon_nobg.png',
-              height: 150,
-              width: 150,
+              height: 288,
+              width: 288,
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 4),
             const Text(
               'Wah Industries Limited',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 38,
                 fontWeight: FontWeight.bold,
-                color: AppColors.primary,
+                color: Colors.white,
                 letterSpacing: 3,
               ),
             ),
@@ -52,11 +52,11 @@ class _SplashScreenState extends State<SplashScreen> {
             const Text(
               'Employee Management System',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, color: AppColors.primary),
+              style: TextStyle(fontSize: 16, color: Colors.white),
             ),
             const SizedBox(height: 50),
             const CircularProgressIndicator(
-              color: AppColors.primary,
+              color: Colors.white,
               strokeWidth: 3,
             ),
           ],
