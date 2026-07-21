@@ -69,10 +69,11 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 40),
-              const Icon(
-                Icons.work_outline,
-                size: 80,
-                color: AppColors.primary,
+              Image.asset(
+                'assets/icons/app_icon.jpeg',
+                width: 80,
+                height: 80,
+                fit: BoxFit.contain,
               ),
               const SizedBox(height: 24),
               const Text(
@@ -139,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: _isLoading ? null : _handleLogin,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.black,
+                    foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
