@@ -32,7 +32,11 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/icons/app_icon.jpeg', height: 120, width: 120),
+            Image.asset(
+              'assets/icons/app_icon_nobg.png',
+              height: 120,
+              width: 120,
+            ),
             const SizedBox(height: 30),
             const Text(
               'Wah Industries Limited',
