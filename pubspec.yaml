@@ -53,7 +53,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: assets/icons/app_icon.jpeg
+  image_path: assets/icons/app_icon_nobg.png
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
