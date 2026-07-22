@@ -305,13 +305,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 // Security Question Dropdown
                 DropdownButtonFormField<String>(
+                  isExpanded: true, // <--- FIX: Prevents horizontal overflow
                   value: _selectedSecurityQuestion,
                   decoration: _inputDecoration(
                     'Security Question',
                     icon: Icons.security,
                   ),
                   items: _securityQuestions.map((String q) {
-                    return DropdownMenuItem<String>(value: q, child: Text(q));
+                    return DropdownMenuItem<String>(
+                      value: q,
+                      child: Text(
+                        q,
+                        overflow: TextOverflow
+                            .ellipsis, // <--- Truncates long text gracefully with '...' if needed
+                      ),
+                    );
                   }).toList(),
                   onChanged: (val) =>
                       setState(() => _selectedSecurityQuestion = val),
@@ -319,7 +327,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       val == null ? 'Please select a question' : null,
                 ),
                 const SizedBox(height: 16),
-
                 // Security Answer
                 TextFormField(
                   controller: _securityAnswerController,
