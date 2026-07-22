@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../core/colors/app_colors.dart';
 import '../core/services/auth_service.dart';
 import 'reset_password_screen.dart';
@@ -14,10 +15,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _securityAnswerController =
       TextEditingController();
+
+  // FIX: Updated to match the exact list from RegisterScreen
   static const List<String> _securityQuestions = [
-    "First pet's name",
-    "Mother's maiden name",
-    'City where you were born',
+    'What was the name of your first pet?',
+    'What is your mother\'s maiden name?',
+    'What was the name of your elementary school?',
+    'In what city were you born?',
   ];
 
   String? _selectedSecurityQuestion = _securityQuestions.first;
@@ -111,7 +115,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
               const SizedBox(height: 20),
 
+              // Security Question Dropdown
               DropdownButtonFormField<String>(
+                isExpanded: true, // Prevents overflow
                 value: _selectedSecurityQuestion,
                 decoration: const InputDecoration(
                   labelText: 'Security Question',
@@ -124,7 +130,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     .map(
                       (question) => DropdownMenuItem<String>(
                         value: question,
-                        child: Text(question),
+                        child: Text(
+                          question,
+                          overflow: TextOverflow
+                              .ellipsis, // Truncates long question gracefully
+                        ),
                       ),
                     )
                     .toList(),
