@@ -14,6 +14,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _petNameController = TextEditingController();
   bool _isLoading = false;
+  bool _isObscured = true; // State for password visibility
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _petNameController.dispose();
+    super.dispose();
+  }
 
   void _handleRegister() async {
     if (_emailController.text.isEmpty ||
@@ -89,16 +98,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Password
+              // Password with Eye Toggle
               TextField(
                 controller: _passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
+                obscureText: _isObscured,
+                decoration: InputDecoration(
                   labelText: 'Password',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.lock_outline),
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.lock_outline),
                   filled: true,
                   fillColor: AppColors.surface,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isObscured ? Icons.visibility_off : Icons.visibility,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isObscured = !_isObscured;
+                      });
+                    },
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
