@@ -15,21 +15,13 @@ import 'package:flutter/foundation.dart'
 /// );
 /// ```
 class DefaultFirebaseOptions {
-  static const String _webApiKey = String.fromEnvironment(
-    'FIREBASE_WEB_API_KEY',
-  );
-  static const String _androidApiKey = String.fromEnvironment(
-    'FIREBASE_ANDROID_API_KEY',
-  );
-  static const String _iosApiKey = String.fromEnvironment(
-    'FIREBASE_IOS_API_KEY',
-  );
-  static const String _macosApiKey = String.fromEnvironment(
-    'FIREBASE_MACOS_API_KEY',
-  );
-  static const String _windowsApiKey = String.fromEnvironment(
-    'FIREBASE_WINDOWS_API_KEY',
-  );
+  static const String _webApiKey = 'AIzaSyCiFNfDjYAfvsXB_Z3x5T2kxEgKjEbmvOA';
+  static const String _androidApiKey =
+      'AIzaSyCiFNfDjYAfvsXB_Z3x5T2kxEgKjEbmvOA';
+  static const String _iosApiKey = 'AIzaSyCiFNfDjYAfvsXB_Z3x5T2kxEgKjEbmvOA';
+  static const String _macosApiKey = 'AIzaSyCiFNfDjYAfvsXB_Z3x5T2kxEgKjEbmvOA';
+  static const String _windowsApiKey =
+      'AIzaSyCiFNfDjYAfvsXB_Z3x5T2kxEgKjEbmvOA';
 
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {

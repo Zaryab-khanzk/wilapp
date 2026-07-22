@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/colors/app_colors.dart';
+import '../core/colors/app_colors.dart';
 import '../core/services/auth_service.dart';
 import 'forgot_password_screen.dart';
 import 'register_screen.dart';

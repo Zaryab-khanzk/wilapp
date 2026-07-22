@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../core/colors/app_colors.dart';
+
+import '../core/colors/app_colors.dart';
 import '../core/services/auth_service.dart';
+import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -10,26 +12,92 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  // Text Controllers
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _petNameController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _cnicController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _securityAnswerController =
+      TextEditingController();
+
+  DateTime? _selectedDob;
+  String? _selectedSecurityQuestion;
   bool _isLoading = false;
-  bool _isObscured = true; // State for password visibility
+  bool _isPasswordObscured = true;
+  bool _isConfirmPasswordObscured = true;
+
+  final List<String> _securityQuestions = [
+    'What was the name of your first pet?',
+    'What is your mother\'s maiden name?',
+    'What was the name of your elementary school?',
+    'In what city were you born?',
+  ];
 
   @override
   void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _petNameController.dispose();
+    _confirmPasswordController.dispose();
+    _phoneController.dispose();
+    _cnicController.dispose();
+    _addressController.dispose();
+    _securityAnswerController.dispose();
     super.dispose();
   }
 
-  void _handleRegister() async {
-    if (_emailController.text.isEmpty ||
-        _passwordController.text.isEmpty ||
-        _petNameController.text.isEmpty) {
+  InputDecoration _inputDecoration(
+    String label, {
+    IconData? icon,
+    Widget? suffixIcon,
+  }) {
+    return InputDecoration(
+      labelText: label,
+      border: const OutlineInputBorder(),
+      prefixIcon: icon == null ? null : Icon(icon),
+      suffixIcon: suffixIcon,
+      filled: true,
+      fillColor: AppColors.surface,
+    );
+  }
+
+  Future<void> _selectDateOfBirth() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(2000),
+      firstDate: DateTime(1950),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) {
+      setState(() => _selectedDob = picked);
+    }
+  }
+
+  Future<void> _handleRegister() async {
+    FocusScope.of(context).unfocus();
+
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
+
+    if (_selectedDob == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill out all fields')),
+        const SnackBar(content: Text('Please select your Date of Birth')),
+      );
+      return;
+    }
+
+    if (_selectedSecurityQuestion == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a security question')),
       );
       return;
     }
@@ -37,19 +105,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() => _isLoading = true);
     try {
       await AuthService().registerUser(
-        email: _emailController.text,
+        email: _emailController.text.trim(),
         password: _passwordController.text,
-        securityAnswer: _petNameController.text,
+        firstName: _firstNameController.text.trim(),
+        lastName: _lastNameController.text.trim(),
+        phone: _phoneController.text.trim(),
+        cnic: _cnicController.text.trim(),
+        address: _addressController.text.trim(),
+        dob: _selectedDob!,
+        securityQuestion: _selectedSecurityQuestion!,
+        securityAnswer: _securityAnswerController.text.trim(),
       );
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Account Created Successfully! Please login.'),
-            backgroundColor: AppColors.success,
-          ),
-        );
-        Navigator.pop(context); // Go back to Login Screen
-      }
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Registration successful! Please log in.'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        (route) => false,
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -60,7 +141,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
       }
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -68,98 +151,212 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Register Account'),
+        title: const Text('Create Account'),
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
       ),
+      backgroundColor: AppColors.background,
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-              const Text(
-                'Create Your Account',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 30),
+          child: Form(
+            key: _formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 10),
 
-              // Email
-              TextField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.email_outlined),
-                  filled: true,
-                  fillColor: AppColors.surface,
-                ),
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 20),
-
-              // Password with Eye Toggle
-              TextField(
-                controller: _passwordController,
-                obscureText: _isObscured,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  border: const OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.lock_outline),
-                  filled: true,
-                  fillColor: AppColors.surface,
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _isObscured ? Icons.visibility_off : Icons.visibility,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isObscured = !_isObscured;
-                      });
-                    },
+                // First Name
+                TextFormField(
+                  controller: _firstNameController,
+                  decoration: _inputDecoration(
+                    'First Name',
+                    icon: Icons.person,
                   ),
+                  validator: (val) =>
+                      val == null || val.isEmpty ? 'Required' : null,
                 ),
-              ),
-              const SizedBox(height: 20),
+                const SizedBox(height: 16),
 
-              // Security Question (Pet Name)
-              TextField(
-                controller: _petNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Security Q: What was your first pet\'s name?',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.pets_outlined),
-                  filled: true,
-                  fillColor: AppColors.surface,
+                // Last Name
+                TextFormField(
+                  controller: _lastNameController,
+                  decoration: _inputDecoration(
+                    'Last Name',
+                    icon: Icons.person_outline,
+                  ),
+                  validator: (val) =>
+                      val == null || val.isEmpty ? 'Required' : null,
                 ),
-              ),
-              const SizedBox(height: 30),
+                const SizedBox(height: 16),
 
-              // Register Button
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _handleRegister,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                // Email
+                TextFormField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: _inputDecoration('Email', icon: Icons.email),
+                  validator: (val) => val == null || !val.contains('@')
+                      ? 'Invalid email'
+                      : null,
+                ),
+                const SizedBox(height: 16),
+
+                // Password
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: _isPasswordObscured,
+                  decoration: _inputDecoration(
+                    'Password',
+                    icon: Icons.lock,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordObscured
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                      ),
+                      onPressed: () => setState(
+                        () => _isPasswordObscured = !_isPasswordObscured,
+                      ),
                     ),
                   ),
-                  child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
-                          'REGISTER',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                  validator: (val) => val != null && val.length >= 6
+                      ? null
+                      : 'Min 6 characters',
+                ),
+                const SizedBox(height: 16),
+
+                // Confirm Password
+                TextFormField(
+                  controller: _confirmPasswordController,
+                  obscureText: _isConfirmPasswordObscured,
+                  decoration: _inputDecoration(
+                    'Confirm Password',
+                    icon: Icons.lock_outline,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isConfirmPasswordObscured
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                      ),
+                      onPressed: () => setState(
+                        () => _isConfirmPasswordObscured =
+                            !_isConfirmPasswordObscured,
+                      ),
+                    ),
+                  ),
+                  validator: (val) => val == _passwordController.text
+                      ? null
+                      : 'Passwords do not match',
+                ),
+                const SizedBox(height: 16),
+
+                // Phone
+                TextFormField(
+                  controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                  decoration: _inputDecoration(
+                    'Phone Number',
+                    icon: Icons.phone,
+                  ),
+                  validator: (val) =>
+                      val == null || val.isEmpty ? 'Required' : null,
+                ),
+                const SizedBox(height: 16),
+
+                // CNIC
+                TextFormField(
+                  controller: _cnicController,
+                  keyboardType: TextInputType.number,
+                  decoration: _inputDecoration(
+                    'CNIC / ID Number',
+                    icon: Icons.badge,
+                  ),
+                  validator: (val) =>
+                      val == null || val.isEmpty ? 'Required' : null,
+                ),
+                const SizedBox(height: 16),
+
+                // Address
+                TextFormField(
+                  controller: _addressController,
+                  decoration: _inputDecoration('Address', icon: Icons.home),
+                  validator: (val) =>
+                      val == null || val.isEmpty ? 'Required' : null,
+                ),
+                const SizedBox(height: 16),
+
+                // Date of Birth Picker
+                ListTile(
+                  tileColor: AppColors.surface,
+                  shape: RoundedRectangleBorder(
+                    side: const BorderSide(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  leading: const Icon(Icons.calendar_today),
+                  title: Text(
+                    _selectedDob == null
+                        ? 'Select Date of Birth'
+                        : 'DOB: ${_selectedDob!.day}/${_selectedDob!.month}/${_selectedDob!.year}',
+                  ),
+                  onTap: _selectDateOfBirth,
+                ),
+                const SizedBox(height: 16),
+
+                // Security Question Dropdown
+                DropdownButtonFormField<String>(
+                  value: _selectedSecurityQuestion,
+                  decoration: _inputDecoration(
+                    'Security Question',
+                    icon: Icons.security,
+                  ),
+                  items: _securityQuestions.map((String q) {
+                    return DropdownMenuItem<String>(value: q, child: Text(q));
+                  }).toList(),
+                  onChanged: (val) =>
+                      setState(() => _selectedSecurityQuestion = val),
+                  validator: (val) =>
+                      val == null ? 'Please select a question' : null,
+                ),
+                const SizedBox(height: 16),
+
+                // Security Answer
+                TextFormField(
+                  controller: _securityAnswerController,
+                  decoration: _inputDecoration(
+                    'Security Answer',
+                    icon: Icons.question_answer,
+                  ),
+                  validator: (val) =>
+                      val == null || val.isEmpty ? 'Required' : null,
+                ),
+                const SizedBox(height: 30),
+
+                // Register Button
+                SizedBox(
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _handleRegister,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                            'REGISTER',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

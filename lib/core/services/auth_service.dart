@@ -5,79 +5,129 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // 1. SIGN UP (WITH SECURITY QUESTION)
+  // 1. Register User (Matches all fields from RegisterScreen)
   Future<void> registerUser({
     required String email,
     required String password,
+    required String firstName,
+    required String lastName,
+    required String phone,
+    required String cnic,
+    required String address,
+    required DateTime dob,
+    required String securityQuestion,
     required String securityAnswer,
   }) async {
     try {
-      // Create account in Firebase Auth
-      UserCredential credential = await _auth.createUserWithEmailAndPassword(
-        email: email.trim(),
-        password: password.trim(),
-      );
+      // Create Authentication User
+      UserCredential userCredential = await _auth
+          .createUserWithEmailAndPassword(
+            email: email.trim(),
+            password: password,
+          );
 
-      // Save user email & security answer (in lowercase for easy matching) in Firestore
-      if (credential.user != null) {
-        await _firestore.collection('users').doc(credential.user!.uid).set({
-          'email': email.trim().toLowerCase(),
-          'securityAnswer': securityAnswer.trim().toLowerCase(),
-          'createdAt': FieldValue.serverTimestamp(),
-        });
-      }
+      final String uid = userCredential.user!.uid;
+
+      // Save complete profile data directly to Firestore
+      await _firestore.collection('users').doc(uid).set({
+        'uid': uid,
+        'firstName': firstName,
+        'lastName': lastName,
+        'email': email.trim(),
+        'phone': phone,
+        'cnic': cnic,
+        'address': address,
+        'dob': dob.toIso8601String(),
+        'securityQuestion': securityQuestion,
+        'securityAnswer': securityAnswer.trim().toLowerCase(),
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      // Update Display Name in Firebase Auth Profile
+      await userCredential.user?.updateDisplayName('$firstName $lastName');
     } on FirebaseAuthException catch (e) {
-      throw e.message ?? "Registration failed.";
+      throw e.message ?? 'Authentication failed.';
     } catch (e) {
-      throw "An unexpected error occurred.";
+      throw 'Registration failed: ${e.toString()}';
     }
   }
 
-  // 2. LOG IN
-  Future<void> loginUser({
+  // 2. Login User
+  Future<UserCredential> loginUser({
     required String email,
     required String password,
   }) async {
     try {
-      await _auth.signInWithEmailAndPassword(
+      return await _auth.signInWithEmailAndPassword(
         email: email.trim(),
-        password: password.trim(),
+        password: password,
       );
     } on FirebaseAuthException catch (e) {
-      throw e.message ?? "Login failed.";
+      throw e.message ?? 'Login failed. Please check your credentials.';
+    } catch (e) {
+      throw 'An error occurred during login: ${e.toString()}';
     }
   }
 
-  // 3. VERIFY SECURITY ANSWER & RESET PASSWORD
-  Future<void> verifyAnswerAndResetPassword({
+  // 3. Verify Security Answer for Password Reset
+  Future<String> verifySecurityAnswer({
     required String email,
+    required String securityQuestion,
     required String securityAnswer,
   }) async {
     try {
-      // Find user document by email
       final querySnapshot = await _firestore
           .collection('users')
-          .where('email', isEqualTo: email.trim().toLowerCase())
+          .where('email', isEqualTo: email.trim())
+          .limit(1)
           .get();
 
       if (querySnapshot.docs.isEmpty) {
-        throw "No user account found with this email.";
+        throw 'No account found with this email address.';
       }
 
       final userData = querySnapshot.docs.first.data();
+      final storedQuestion = userData['securityQuestion'] as String?;
       final storedAnswer = userData['securityAnswer'] as String?;
 
-      // Check if provided answer matches stored answer
-      if (storedAnswer == null ||
-          storedAnswer.trim().toLowerCase() !=
-              securityAnswer.trim().toLowerCase()) {
-        throw "Incorrect security answer. Please try again.";
+      if (storedQuestion != securityQuestion) {
+        throw 'Incorrect security question selected.';
       }
 
-      // If answer is correct, send password reset link via Firebase Auth
+      if (storedAnswer != securityAnswer.trim().toLowerCase()) {
+        throw 'Incorrect answer to the security question.';
+      }
+
+      return email.trim();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // 4. Send Password Reset Email
+  Future<void> sendPasswordResetEmail({required String email}) async {
+    try {
       await _auth.sendPasswordResetEmail(email: email.trim());
     } on FirebaseAuthException catch (e) {
-      throw e.message ?? "Failed to send reset request.";
+      throw e.message ?? 'Failed to send password reset email.';
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // 5. Update Password
+  Future<void> updatePassword({required String newPassword}) async {
+    try {
+      User? user = _auth.currentUser;
+      if (user != null) {
+        await user.updatePassword(newPassword);
+      } else {
+        throw 'User session expired. Please log in again.';
+      }
+    } on FirebaseAuthException catch (e) {
+      throw e.message ?? 'Failed to update password.';
+    } catch (e) {
+      rethrow;
     }
   }
 }

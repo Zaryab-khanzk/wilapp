@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../core/colors/app_colors.dart';
+import '../core/colors/app_colors.dart';
 import '../core/services/auth_service.dart';
+import 'reset_password_screen.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -11,14 +12,31 @@ class ForgotPasswordScreen extends StatefulWidget {
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _petNameController = TextEditingController();
+  final TextEditingController _securityAnswerController =
+      TextEditingController();
+  static const List<String> _securityQuestions = [
+    "First pet's name",
+    "Mother's maiden name",
+    'City where you were born',
+  ];
+
+  String? _selectedSecurityQuestion = _securityQuestions.first;
   bool _isLoading = false;
 
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _securityAnswerController.dispose();
+    super.dispose();
+  }
+
   void _handlePasswordReset() async {
-    if (_emailController.text.isEmpty || _petNameController.text.isEmpty) {
+    if (_emailController.text.isEmpty ||
+        _securityAnswerController.text.isEmpty ||
+        _selectedSecurityQuestion == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please enter both email and security answer.'),
+          content: Text('Please enter email, security question, and answer.'),
         ),
       );
       return;
@@ -26,20 +44,18 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     setState(() => _isLoading = true);
     try {
-      await AuthService().verifyAnswerAndResetPassword(
+      final String verifiedEmail = await AuthService().verifySecurityAnswer(
         email: _emailController.text,
-        securityAnswer: _petNameController.text,
+        securityQuestion: _selectedSecurityQuestion!,
+        securityAnswer: _securityAnswerController.text,
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Security answer verified! Password reset link sent to your email.',
-            ),
-            backgroundColor: AppColors.success,
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ResetPasswordScreen(email: verifiedEmail),
           ),
         );
-        Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
@@ -95,13 +111,38 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
               const SizedBox(height: 20),
 
+              DropdownButtonFormField<String>(
+                value: _selectedSecurityQuestion,
+                decoration: const InputDecoration(
+                  labelText: 'Security Question',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.security_outlined),
+                  filled: true,
+                  fillColor: AppColors.surface,
+                ),
+                items: _securityQuestions
+                    .map(
+                      (question) => DropdownMenuItem<String>(
+                        value: question,
+                        child: Text(question),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedSecurityQuestion = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 20),
+
               // Security Answer
               TextField(
-                controller: _petNameController,
+                controller: _securityAnswerController,
                 decoration: const InputDecoration(
-                  labelText: 'Security Q: What was your first pet\'s name?',
+                  labelText: 'Security Answer',
                   border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.pets_outlined),
+                  prefixIcon: Icon(Icons.question_answer_outlined),
                   filled: true,
                   fillColor: AppColors.surface,
                 ),
