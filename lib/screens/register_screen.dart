@@ -26,6 +26,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _securityAnswerController =
       TextEditingController();
+  final TextEditingController _dobController = TextEditingController();
 
   DateTime? _selectedDob;
   String? _selectedSecurityQuestion;
@@ -51,6 +52,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _cnicController.dispose();
     _addressController.dispose();
     _securityAnswerController.dispose();
+    _dobController.dispose();
     super.dispose();
   }
 
@@ -342,20 +344,86 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-                // Date of Birth Picker
-                ListTile(
-                  tileColor: AppColors.surface,
-                  shape: RoundedRectangleBorder(
-                    side: const BorderSide(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  leading: const Icon(Icons.calendar_today),
-                  title: Text(
-                    _selectedDob == null
-                        ? 'Select Date of Birth'
-                        : 'DOB: ${_selectedDob!.day}/${_selectedDob!.month}/${_selectedDob!.year}',
-                  ),
-                  onTap: _selectDateOfBirth,
+                // Date of Birth
+                TextFormField(
+                  controller: _dobController,
+                  keyboardType: TextInputType.number,
+                  maxLength: 10, // DD/MM/YYYY = 10 characters
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    DateInputFormatter(),
+                  ],
+                  decoration:
+                      _inputDecoration(
+                        'Date of Birth',
+                        icon: Icons.calendar_today,
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.date_range),
+                          onPressed: () async {
+                            final DateTime? picked = await showDatePicker(
+                              context: context,
+                              initialDate: _selectedDob ?? DateTime(2000),
+                              firstDate: DateTime(1950),
+                              lastDate: DateTime.now(),
+                            );
+                            if (picked != null) {
+                              final day = picked.day.toString().padLeft(2, '0');
+                              final month = picked.month.toString().padLeft(
+                                2,
+                                '0',
+                              );
+                              _dobController.text =
+                                  '$day/$month/${picked.year}';
+                              setState(() => _selectedDob = picked);
+                            }
+                          },
+                        ),
+                      ).copyWith(
+                        hintText: 'DD/MM/YYYY',
+                        counterText:
+                            '', // Hides character counter text below field
+                      ),
+                  validator: (val) {
+                    if (val == null || val.trim().isEmpty) {
+                      return 'Required';
+                    }
+
+                    // Standard regex format check
+                    final RegExp dateRegex = RegExp(r'^\d{2}/\d{2}/\d{4}$');
+                    if (!dateRegex.hasMatch(val)) {
+                      return 'Enter a valid date (DD/MM/YYYY)';
+                    }
+
+                    // Extract day, month, year
+                    final parts = val.split('/');
+                    final day = int.tryParse(parts[0]);
+                    final month = int.tryParse(parts[1]);
+                    final year = int.tryParse(parts[2]);
+
+                    if (day == null || month == null || year == null)
+                      return 'Invalid Date';
+                    if (month < 1 || month > 12) return 'Invalid Month (01-12)';
+                    if (day < 1 || day > 31) return 'Invalid Day (01-31)';
+
+                    try {
+                      final parsedDate = DateTime(year, month, day);
+
+                      // Prevent selecting future dates or impossible years
+                      if (parsedDate.isAfter(DateTime.now())) {
+                        return 'Date cannot be in the future';
+                      }
+                      if (year < 1920) {
+                        return 'Enter a realistic birth year';
+                      }
+
+                      // Sync valid date to state
+                      _selectedDob = parsedDate;
+                    } catch (_) {
+                      return 'Invalid Date';
+                    }
+
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
 
@@ -443,6 +511,35 @@ class CnicInputFormatter extends TextInputFormatter {
     for (int i = 0; i < digitsOnly.length; i++) {
       if (i == 5 || i == 12) {
         buffer.write('-');
+      }
+      buffer.write(digitsOnly[i]);
+    }
+
+    final String formattedText = buffer.toString();
+
+    return TextEditingValue(
+      text: formattedText,
+      selection: TextSelection.collapsed(offset: formattedText.length),
+    );
+  }
+}
+
+class DateInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    String digitsOnly = newValue.text.replaceAll(RegExp(r'\D'), '');
+
+    if (digitsOnly.length > 8) {
+      digitsOnly = digitsOnly.substring(0, 8);
+    }
+
+    final StringBuffer buffer = StringBuffer();
+    for (int i = 0; i < digitsOnly.length; i++) {
+      if (i == 2 || i == 4) {
+        buffer.write('/');
       }
       buffer.write(digitsOnly[i]);
     }
