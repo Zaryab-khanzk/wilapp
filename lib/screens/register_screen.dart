@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../core/colors/app_colors.dart';
 import '../core/services/auth_service.dart';
 import 'login_screen.dart';
@@ -257,7 +256,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
                   decoration: _inputDecoration(
-                    'Phone Number',
+                    'Mobile Number',
                     icon: Icons.phone,
                   ),
                   validator: (val) =>
