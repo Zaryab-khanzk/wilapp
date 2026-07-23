@@ -255,10 +255,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 TextFormField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
-                  decoration: _inputDecoration(
-                    'Mobile Number',
-                    icon: Icons.phone,
-                  ),
+                  maxLength:
+                      11, // Restricts user input to a maximum of 11 digits
+                  inputFormatters: [
+                    FilteringTextInputFormatter
+                        .digitsOnly, // Restricts input to numbers only
+                  ],
+
+                  decoration:
+                      _inputDecoration(
+                        'Phone Number',
+                        icon: Icons.phone,
+                      ).copyWith(
+                        hintText: '03XXXXXXXXX', // Placeholder format
+                        counterText:
+                            '', // Hides the "0/11" character counter below the field
+                      ),
                   validator: (val) =>
                       val == null || val.isEmpty ? 'Required' : null,
                 ),
