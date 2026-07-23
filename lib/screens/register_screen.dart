@@ -29,6 +29,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       TextEditingController();
   final TextEditingController _dobController = TextEditingController();
 
+  // Focus Nodes to track focus state for Phone and CNIC fields
+  final FocusNode _phoneFocusNode = FocusNode();
+  final FocusNode _cnicFocusNode = FocusNode();
+
   DateTime? _selectedDob;
   String? _selectedSecurityQuestion;
   bool _isLoading = false;
@@ -43,6 +47,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    // Rebuild UI when focus changes to swap hint text dynamically
+    _phoneFocusNode.addListener(() => setState(() {}));
+    _cnicFocusNode.addListener(() => setState(() {}));
+  }
+
+  @override
   void dispose() {
     _firstNameController.dispose();
     _lastNameController.dispose();
@@ -54,6 +66,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _addressController.dispose();
     _securityAnswerController.dispose();
     _dobController.dispose();
+
+    _phoneFocusNode.dispose();
+    _cnicFocusNode.dispose();
     super.dispose();
   }
 
@@ -400,11 +415,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 14),
 
-                        // Phone
+                        // Phone Number Dynamic Field
                         Container(
                           decoration: _fieldBoxDecoration(),
                           child: TextFormField(
                             controller: _phoneController,
+                            focusNode: _phoneFocusNode,
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 15,
@@ -414,14 +430,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                             ],
-                            decoration:
-                                _inputDecoration(
-                                  'Phone Number',
-                                  icon: Icons.phone_outlined,
-                                ).copyWith(
-                                  hintText: '03XXXXXXXXX',
-                                  counterText: '',
-                                ),
+                            decoration: _inputDecoration(
+                              _phoneFocusNode.hasFocus
+                                  ? '03XXXXXXXXX'
+                                  : 'Phone Number',
+                              icon: Icons.phone_outlined,
+                            ).copyWith(counterText: ''),
                             validator: (val) {
                               if (val == null || val.isEmpty) {
                                 return 'Required';
@@ -436,11 +450,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 14),
 
-                        // CNIC
+                        // CNIC Dynamic Field
                         Container(
                           decoration: _fieldBoxDecoration(),
                           child: TextFormField(
                             controller: _cnicController,
+                            focusNode: _cnicFocusNode,
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 15,
@@ -451,14 +466,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               FilteringTextInputFormatter.digitsOnly,
                               CnicInputFormatter(),
                             ],
-                            decoration:
-                                _inputDecoration(
-                                  'CNIC / ID Number',
-                                  icon: Icons.badge_outlined,
-                                ).copyWith(
-                                  hintText: 'XXXXX-YYYYYYY-Z',
-                                  counterText: '',
-                                ),
+                            decoration: _inputDecoration(
+                              _cnicFocusNode.hasFocus
+                                  ? 'XXXXX-YYYYYYY-Z'
+                                  : 'CNIC / ID Number',
+                              icon: Icons.badge_outlined,
+                            ).copyWith(counterText: ''),
                             validator: (val) {
                               if (val == null || val.isEmpty) {
                                 return 'Required';
@@ -583,10 +596,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               color: Colors.white,
                               fontSize: 14,
                             ),
-                            decoration: _inputDecoration(
+                            hint: const Text(
                               'Security Question',
+                              style: TextStyle(
+                                color: Colors.white54,
+                                fontSize: 14,
+                              ),
+                            ),
+                            decoration: _inputDecoration(
+                              '',
                               icon: Icons.security_outlined,
-                              hintColor: const Color(0xFF4FC3F7),
                             ),
                             items: _securityQuestions.map((String q) {
                               return DropdownMenuItem<String>(
