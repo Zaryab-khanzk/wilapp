@@ -71,10 +71,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
     String hint, {
     IconData? icon,
     Widget? suffixIcon,
+    Color? hintColor,
   }) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: Colors.white54, fontSize: 14),
+      hintStyle: TextStyle(color: hintColor ?? Colors.white54, fontSize: 14),
       prefixIcon: icon == null
           ? null
           : Icon(icon, color: Colors.white70, size: 20),
@@ -585,6 +586,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             decoration: _inputDecoration(
                               'Security Question',
                               icon: Icons.security_outlined,
+                              hintColor: const Color(0xFF4FC3F7),
                             ),
                             items: _securityQuestions.map((String q) {
                               return DropdownMenuItem<String>(
