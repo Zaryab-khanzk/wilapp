@@ -170,12 +170,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 // First Name
                 TextFormField(
                   controller: _firstNameController,
+                  keyboardType: TextInputType.name,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                  ],
                   decoration: _inputDecoration(
                     'First Name',
                     icon: Icons.person,
                   ),
-                  validator: (val) =>
-                      val == null || val.isEmpty ? 'Required' : null,
+                  validator: (val) {
+                    if (val == null || val.trim().isEmpty) {
+                      return 'Required';
+                    }
+                    // Ensures no numbers or special characters pass through
+                    final RegExp nameRegex = RegExp(r'^[a-zA-Z\s]+$');
+                    if (!nameRegex.hasMatch(val.trim())) {
+                      return 'Only letters and spaces are allowed';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
 
