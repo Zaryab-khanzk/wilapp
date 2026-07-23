@@ -271,11 +271,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         counterText:
                             '', // Hides the "0/11" character counter below the field
                       ),
-                  validator: (val) =>
-                      val == null || val.isEmpty ? 'Required' : null,
+                  validator: (val) {
+                    if (val == null || val.isEmpty) {
+                      return 'Required';
+                    }
+                    // Ensures it starts with 03 and is exactly 11 digits long
+                    final RegExp phoneRegex = RegExp(r'^03\d{9}$');
+                    if (!phoneRegex.hasMatch(val)) {
+                      return 'Enter a valid phone number (e.g., 03001234567)';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
-
                 // CNIC
                 TextFormField(
                   controller: _cnicController,
