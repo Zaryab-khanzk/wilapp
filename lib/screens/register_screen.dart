@@ -193,14 +193,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 16),
 
                 // Last Name
+                // Last Name
                 TextFormField(
                   controller: _lastNameController,
+                  keyboardType: TextInputType.name,
+                  inputFormatters: [
+                    // Allows only uppercase/lowercase letters and spaces
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                  ],
                   decoration: _inputDecoration(
                     'Last Name',
                     icon: Icons.person_outline,
                   ),
-                  validator: (val) =>
-                      val == null || val.isEmpty ? 'Required' : null,
+                  validator: (val) {
+                    if (val == null || val.trim().isEmpty) {
+                      return 'Required';
+                    }
+                    final RegExp nameRegex = RegExp(r'^[a-zA-Z\s]+$');
+                    if (!nameRegex.hasMatch(val.trim())) {
+                      return 'Only letters and spaces are allowed';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
 
