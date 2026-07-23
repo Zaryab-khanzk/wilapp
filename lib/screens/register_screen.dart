@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/colors/app_colors.dart';
 import '../core/services/auth_service.dart';
 import 'login_screen.dart';
+import 'package:flutter/services.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -268,24 +269,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 TextFormField(
                   controller: _cnicController,
                   keyboardType: TextInputType.number,
-                  decoration: _inputDecoration(
-                    'CNIC / ID Number',
-                    icon: Icons.badge,
-                  ),
-                  validator: (val) =>
-                      val == null || val.isEmpty ? 'Required' : null,
+                  maxLength: 15, // 13 digits + 2 hyphens
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    CnicInputFormatter(),
+                  ],
+                  decoration:
+                      _inputDecoration(
+                        'CNIC / ID Number',
+                        icon: Icons.badge,
+                      ).copyWith(
+                        hintText: 'XXXXX-YYYYYYY-Z',
+                        counterText:
+                            '', // Hides the default character counter text below the field
+                      ),
+                  validator: (val) {
+                    if (val == null || val.isEmpty) {
+                      return 'Required';
+                    }
+                    // Validates exact format: 5 digits - 7 digits - 1 digit
+                    final RegExp cnicRegex = RegExp(r'^\d{5}-\d{7}-\d{1}$');
+                    if (!cnicRegex.hasMatch(val)) {
+                      return 'Enter a valid CNIC (e.g., 12345-1234567-1)';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
-
-                // Address
-                TextFormField(
-                  controller: _addressController,
-                  decoration: _inputDecoration('Address', icon: Icons.home),
-                  validator: (val) =>
-                      val == null || val.isEmpty ? 'Required' : null,
-                ),
-                const SizedBox(height: 16),
-
                 // Date of Birth Picker
                 ListTile(
                   tileColor: AppColors.surface,
@@ -367,6 +377,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class CnicInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    String digitsOnly = newValue.text.replaceAll(RegExp(r'\D'), '');
+
+    if (digitsOnly.length > 13) {
+      digitsOnly = digitsOnly.substring(0, 13);
+    }
+
+    final StringBuffer buffer = StringBuffer();
+    for (int i = 0; i < digitsOnly.length; i++) {
+      if (i == 5 || i == 12) {
+        buffer.write('-');
+      }
+      buffer.write(digitsOnly[i]);
+    }
+
+    final String formattedText = buffer.toString();
+
+    return TextEditingValue(
+      text: formattedText,
+      selection: TextSelection.collapsed(offset: formattedText.length),
     );
   }
 }
