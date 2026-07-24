@@ -43,3 +43,16 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Environment and local secret files
+.env
+.env.*
+!.env.example
+
+# Firebase and platform service config files
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+macos/Runner/GoogleService-Info.plist
+
+# Local machine-specific build config
+android/local.properties

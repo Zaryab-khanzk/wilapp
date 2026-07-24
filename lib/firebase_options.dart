@@ -15,13 +15,99 @@ import 'package:flutter/foundation.dart'
 /// );
 /// ```
 class DefaultFirebaseOptions {
-  static const String _webApiKey = 'AIzaSyCiFNfDjYAfvsXB_Z3x5T2kxEgKjEbmvOA';
-  static const String _androidApiKey =
-      'AIzaSyCiFNfDjYAfvsXB_Z3x5T2kxEgKjEbmvOA';
-  static const String _iosApiKey = 'AIzaSyCiFNfDjYAfvsXB_Z3x5T2kxEgKjEbmvOA';
-  static const String _macosApiKey = 'AIzaSyCiFNfDjYAfvsXB_Z3x5T2kxEgKjEbmvOA';
-  static const String _windowsApiKey =
-      'AIzaSyCiFNfDjYAfvsXB_Z3x5T2kxEgKjEbmvOA';
+  static const String _webApiKey = String.fromEnvironment(
+    'FIREBASE_WEB_API_KEY',
+  );
+  static const String _webAppId = String.fromEnvironment('FIREBASE_WEB_APP_ID');
+  static const String _webMessagingSenderId = String.fromEnvironment(
+    'FIREBASE_WEB_MESSAGING_SENDER_ID',
+  );
+  static const String _webProjectId = String.fromEnvironment(
+    'FIREBASE_WEB_PROJECT_ID',
+  );
+  static const String _webAuthDomain = String.fromEnvironment(
+    'FIREBASE_WEB_AUTH_DOMAIN',
+  );
+  static const String _webStorageBucket = String.fromEnvironment(
+    'FIREBASE_WEB_STORAGE_BUCKET',
+  );
+  static const String _webMeasurementId = String.fromEnvironment(
+    'FIREBASE_WEB_MEASUREMENT_ID',
+  );
+
+  static const String _androidApiKey = String.fromEnvironment(
+    'FIREBASE_ANDROID_API_KEY',
+  );
+  static const String _androidAppId = String.fromEnvironment(
+    'FIREBASE_ANDROID_APP_ID',
+  );
+  static const String _androidMessagingSenderId = String.fromEnvironment(
+    'FIREBASE_ANDROID_MESSAGING_SENDER_ID',
+  );
+  static const String _androidProjectId = String.fromEnvironment(
+    'FIREBASE_ANDROID_PROJECT_ID',
+  );
+  static const String _androidStorageBucket = String.fromEnvironment(
+    'FIREBASE_ANDROID_STORAGE_BUCKET',
+  );
+
+  static const String _iosApiKey = String.fromEnvironment(
+    'FIREBASE_IOS_API_KEY',
+  );
+  static const String _iosAppId = String.fromEnvironment('FIREBASE_IOS_APP_ID');
+  static const String _iosMessagingSenderId = String.fromEnvironment(
+    'FIREBASE_IOS_MESSAGING_SENDER_ID',
+  );
+  static const String _iosProjectId = String.fromEnvironment(
+    'FIREBASE_IOS_PROJECT_ID',
+  );
+  static const String _iosStorageBucket = String.fromEnvironment(
+    'FIREBASE_IOS_STORAGE_BUCKET',
+  );
+  static const String _iosBundleId = String.fromEnvironment(
+    'FIREBASE_IOS_BUNDLE_ID',
+  );
+
+  static const String _macosApiKey = String.fromEnvironment(
+    'FIREBASE_MACOS_API_KEY',
+  );
+  static const String _macosAppId = String.fromEnvironment(
+    'FIREBASE_MACOS_APP_ID',
+  );
+  static const String _macosMessagingSenderId = String.fromEnvironment(
+    'FIREBASE_MACOS_MESSAGING_SENDER_ID',
+  );
+  static const String _macosProjectId = String.fromEnvironment(
+    'FIREBASE_MACOS_PROJECT_ID',
+  );
+  static const String _macosStorageBucket = String.fromEnvironment(
+    'FIREBASE_MACOS_STORAGE_BUCKET',
+  );
+  static const String _macosBundleId = String.fromEnvironment(
+    'FIREBASE_MACOS_BUNDLE_ID',
+  );
+
+  static const String _windowsApiKey = String.fromEnvironment(
+    'FIREBASE_WINDOWS_API_KEY',
+  );
+  static const String _windowsAppId = String.fromEnvironment(
+    'FIREBASE_WINDOWS_APP_ID',
+  );
+  static const String _windowsMessagingSenderId = String.fromEnvironment(
+    'FIREBASE_WINDOWS_MESSAGING_SENDER_ID',
+  );
+  static const String _windowsProjectId = String.fromEnvironment(
+    'FIREBASE_WINDOWS_PROJECT_ID',
+  );
+  static const String _windowsAuthDomain = String.fromEnvironment(
+    'FIREBASE_WINDOWS_AUTH_DOMAIN',
+  );
+  static const String _windowsStorageBucket = String.fromEnvironment(
+    'FIREBASE_WINDOWS_STORAGE_BUCKET',
+  );
+  static const String _windowsMeasurementId = String.fromEnvironment(
+    'FIREBASE_WINDOWS_MEASUREMENT_ID',
+  );
 
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
@@ -50,47 +136,47 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: _webApiKey,
-    appId: '1:1004386639130:web:d9b059a205159a8f27a0a3',
-    messagingSenderId: '1004386639130',
-    projectId: 'wilapp-auth-project',
-    authDomain: 'wilapp-auth-project.firebaseapp.com',
-    storageBucket: 'wilapp-auth-project.firebasestorage.app',
-    measurementId: 'G-HEFFGR02MG',
+    appId: _webAppId,
+    messagingSenderId: _webMessagingSenderId,
+    projectId: _webProjectId,
+    authDomain: _webAuthDomain,
+    storageBucket: _webStorageBucket,
+    measurementId: _webMeasurementId,
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: _androidApiKey,
-    appId: '1:1004386639130:android:19e336f4fc30f82027a0a3',
-    messagingSenderId: '1004386639130',
-    projectId: 'wilapp-auth-project',
-    storageBucket: 'wilapp-auth-project.firebasestorage.app',
+    appId: _androidAppId,
+    messagingSenderId: _androidMessagingSenderId,
+    projectId: _androidProjectId,
+    storageBucket: _androidStorageBucket,
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: _iosApiKey,
-    appId: '1:1004386639130:ios:1d62a79365b1d2db27a0a3',
-    messagingSenderId: '1004386639130',
-    projectId: 'wilapp-auth-project',
-    storageBucket: 'wilapp-auth-project.firebasestorage.app',
-    iosBundleId: 'com.example.wilapp',
+    appId: _iosAppId,
+    messagingSenderId: _iosMessagingSenderId,
+    projectId: _iosProjectId,
+    storageBucket: _iosStorageBucket,
+    iosBundleId: _iosBundleId,
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: _macosApiKey,
-    appId: '1:1004386639130:ios:1d62a79365b1d2db27a0a3',
-    messagingSenderId: '1004386639130',
-    projectId: 'wilapp-auth-project',
-    storageBucket: 'wilapp-auth-project.firebasestorage.app',
-    iosBundleId: 'com.example.wilapp',
+    appId: _macosAppId,
+    messagingSenderId: _macosMessagingSenderId,
+    projectId: _macosProjectId,
+    storageBucket: _macosStorageBucket,
+    iosBundleId: _macosBundleId,
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
     apiKey: _windowsApiKey,
-    appId: '1:1004386639130:web:bb84c9b2df00474427a0a3',
-    messagingSenderId: '1004386639130',
-    projectId: 'wilapp-auth-project',
-    authDomain: 'wilapp-auth-project.firebaseapp.com',
-    storageBucket: 'wilapp-auth-project.firebasestorage.app',
-    measurementId: 'G-DGF992V8VX',
+    appId: _windowsAppId,
+    messagingSenderId: _windowsMessagingSenderId,
+    projectId: _windowsProjectId,
+    authDomain: _windowsAuthDomain,
+    storageBucket: _windowsStorageBucket,
+    measurementId: _windowsMeasurementId,
   );
 }
