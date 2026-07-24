@@ -56,3 +56,4 @@ macos/Runner/GoogleService-Info.plist
 
 # Local machine-specific build config
 android/local.properties
+firebase_secrets.json
