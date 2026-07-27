@@ -34,7 +34,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
-  void _handlePasswordReset() async {
+  Future<void> _handleVerifySecurityQuestion() async {
     FocusScope.of(context).unfocus();
 
     if (_emailController.text.trim().isEmpty ||
@@ -55,14 +55,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         securityQuestion: _selectedSecurityQuestion!,
         securityAnswer: _securityAnswerController.text.trim(),
       );
-      if (mounted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ResetPasswordScreen(email: verifiedEmail),
-          ),
-        );
-      }
+      if (!mounted) return;
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ResetPasswordScreen(email: verifiedEmail),
+        ),
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -73,7 +73,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         );
       }
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (!mounted) return;
+      setState(() => _isLoading = false);
     }
   }
 
@@ -88,7 +89,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         height: size.height,
         child: Stack(
           children: [
-            // Top Right Decorative Subtle Gradient Circle (Muted Blue/Indigo)
             Positioned(
               top: -100,
               right: -50,
@@ -98,16 +98,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
-                    colors: [
-                      Color(0xFF2C3545), // Soft dark slate
-                      Color(0xFF1E2B37), // Muted dark blue
-                    ],
+                    colors: [Color(0xFF2C3545), Color(0xFF1E2B37)],
                   ),
                 ),
               ),
             ),
-
-            // Bottom Left Decorative Subtle Gradient Circle (Muted Sage/Green)
             Positioned(
               bottom: -80,
               left: -50,
@@ -117,28 +112,20 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
-                    colors: [
-                      Color(0xFF23332A), // Soft dark sage green
-                      Color(0xFF1B2822), // Deep muted forest tint
-                    ],
+                    colors: [Color(0xFF23332A), Color(0xFF1B2822)],
                   ),
                 ),
               ),
             ),
-
-            // Glassmorphism Blur Overlay
             Positioned.fill(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
-                child: Container(color: Colors.black.withOpacity(0.2)),
+                child: Container(color: Colors.black.withValues(alpha: 0.2)),
               ),
             ),
-
-            // Main Content Area
             SafeArea(
               child: Column(
                 children: [
-                  // Custom Back Button Header
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Padding(
@@ -157,7 +144,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            // Header
                             const Text(
                               'Forgot Password',
                               textAlign: TextAlign.center,
@@ -178,14 +164,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               ),
                             ),
                             const SizedBox(height: 36),
-
-                            // Email Input Container
                             Container(
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.08),
+                                color: Colors.white.withValues(alpha: 0.08),
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: Colors.white.withOpacity(0.15),
+                                  color: Colors.white.withValues(alpha: 0.15),
                                 ),
                               ),
                               child: TextField(
@@ -208,14 +192,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               ),
                             ),
                             const SizedBox(height: 18),
-
-                            // Security Question Dropdown Container
                             Container(
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.08),
+                                color: Colors.white.withValues(alpha: 0.08),
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: Colors.white.withOpacity(0.15),
+                                  color: Colors.white.withValues(alpha: 0.15),
                                 ),
                               ),
                               child: DropdownButtonFormField<String>(
@@ -245,31 +227,29 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                 ),
                                 items: _securityQuestions
                                     .map(
-                                      (question) => DropdownMenuItem<String>(
-                                        value: question,
+                                      (q) => DropdownMenuItem<String>(
+                                        value: q,
                                         child: Text(
-                                          question,
+                                          q,
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
                                     )
                                     .toList(),
-                                onChanged: (value) {
-                                  setState(() {
-                                    _selectedSecurityQuestion = value;
-                                  });
+                                onChanged: (val) {
+                                  setState(
+                                    () => _selectedSecurityQuestion = val,
+                                  );
                                 },
                               ),
                             ),
                             const SizedBox(height: 18),
-
-                            // Security Answer Input Container
                             Container(
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.08),
+                                color: Colors.white.withValues(alpha: 0.08),
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: Colors.white.withOpacity(0.15),
+                                  color: Colors.white.withValues(alpha: 0.15),
                                 ),
                               ),
                               child: TextField(
@@ -291,21 +271,19 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               ),
                             ),
                             const SizedBox(height: 30),
-
-                            // Verify Button
                             SizedBox(
                               width: double.infinity,
                               height: 54,
                               child: ElevatedButton(
                                 onPressed: _isLoading
                                     ? null
-                                    : _handlePasswordReset,
+                                    : _handleVerifySecurityQuestion,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.primary,
                                   foregroundColor: Colors.white,
                                   elevation: 8,
-                                  shadowColor: AppColors.primary.withOpacity(
-                                    0.4,
+                                  shadowColor: AppColors.primary.withValues(
+                                    alpha: 0.4,
                                   ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16),

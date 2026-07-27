@@ -1,11 +1,20 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // 1. Register User (Matches all fields from RegisterScreen)
+  String _normalizeEmail(String email) => email.trim().toLowerCase();
+
+  String _hashPassword(String password) {
+    return sha256.convert(utf8.encode(password)).toString();
+  }
+
+  // 1. Register User
   Future<void> registerUser({
     required String email,
     required String password,
@@ -19,7 +28,6 @@ class AuthService {
     required String securityAnswer,
   }) async {
     try {
-      // Create Authentication User
       UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(
             email: email.trim(),
@@ -28,22 +36,21 @@ class AuthService {
 
       final String uid = userCredential.user!.uid;
 
-      // Save complete profile data directly to Firestore
       await _firestore.collection('users').doc(uid).set({
         'uid': uid,
         'firstName': firstName,
         'lastName': lastName,
-        'email': email.trim(),
+        'email': _normalizeEmail(email),
         'phone': phone,
         'cnic': cnic,
         'address': address,
         'dob': dob.toIso8601String(),
         'securityQuestion': securityQuestion,
         'securityAnswer': securityAnswer.trim().toLowerCase(),
+        'passwordHash': _hashPassword(password),
         'createdAt': FieldValue.serverTimestamp(),
       });
 
-      // Update Display Name in Firebase Auth Profile
       await userCredential.user?.updateDisplayName('$firstName $lastName');
     } on FirebaseAuthException catch (e) {
       throw e.message ?? 'Authentication failed.';
@@ -53,15 +60,45 @@ class AuthService {
   }
 
   // 2. Login User
-  Future<UserCredential> loginUser({
+  Future<void> loginUser({
     required String email,
     required String password,
   }) async {
     try {
-      return await _auth.signInWithEmailAndPassword(
-        email: email.trim(),
-        password: password,
-      );
+      final normalizedEmail = _normalizeEmail(email);
+      final querySnapshot = await _firestore
+          .collection('users')
+          .where('email', isEqualTo: normalizedEmail)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        throw 'No account found with this email address.';
+      }
+
+      final userDoc = querySnapshot.docs.first;
+      final userData = userDoc.data();
+      final storedPasswordHash = userData['passwordHash'] as String?;
+      final providedPasswordHash = _hashPassword(password);
+
+      if (storedPasswordHash == null || storedPasswordHash.isEmpty) {
+        await _auth.signInWithEmailAndPassword(
+          email: normalizedEmail,
+          password: password,
+        );
+
+        await userDoc.reference.update({
+          'passwordHash': providedPasswordHash,
+          'passwordUpdatedAt': FieldValue.serverTimestamp(),
+        });
+        return;
+      }
+
+      if (storedPasswordHash != providedPasswordHash) {
+        throw 'Invalid email or password.';
+      }
+
+      return;
     } on FirebaseAuthException catch (e) {
       throw e.message ?? 'Login failed. Please check your credentials.';
     } catch (e) {
@@ -69,7 +106,7 @@ class AuthService {
     }
   }
 
-  // 3. Verify Security Answer for Password Reset
+  // 3. Verify Security Answer
   Future<String> verifySecurityAnswer({
     required String email,
     required String securityQuestion,
@@ -78,7 +115,7 @@ class AuthService {
     try {
       final querySnapshot = await _firestore
           .collection('users')
-          .where('email', isEqualTo: email.trim())
+          .where('email', isEqualTo: _normalizeEmail(email))
           .limit(1)
           .get();
 
@@ -98,35 +135,49 @@ class AuthService {
         throw 'Incorrect answer to the security question.';
       }
 
-      return email.trim();
+      return _normalizeEmail(email);
     } catch (e) {
       rethrow;
     }
   }
 
-  // 4. Send Password Reset Email
-  Future<void> sendPasswordResetEmail({required String email}) async {
+  // 4. Send Password Reset
+  Future<void> resetPasswordForVerifiedEmail({
+    required String email,
+    required String newPassword,
+  }) async {
     try {
-      await _auth.sendPasswordResetEmail(email: email.trim());
-    } on FirebaseAuthException catch (e) {
-      throw e.message ?? 'Failed to send password reset email.';
-    } catch (e) {
-      rethrow;
-    }
-  }
+      final normalizedEmail = _normalizeEmail(email);
+      final querySnapshot = await _firestore
+          .collection('users')
+          .where('email', isEqualTo: normalizedEmail)
+          .limit(1)
+          .get();
 
-  // 5. Update Password
-  Future<void> updatePassword({required String newPassword}) async {
-    try {
-      User? user = _auth.currentUser;
-      if (user != null) {
-        await user.updatePassword(newPassword);
-      } else {
-        throw 'User session expired. Please log in again.';
+      if (querySnapshot.docs.isEmpty) {
+        throw 'No account found with this email address.';
       }
-    } on FirebaseAuthException catch (e) {
-      throw e.message ?? 'Failed to update password.';
+
+      final passwordHash = _hashPassword(newPassword);
+
+      await querySnapshot.docs.first.reference.update({
+        'passwordHash': passwordHash,
+        'passwordUpdatedAt': FieldValue.serverTimestamp(),
+      });
+
+      final currentUser = _auth.currentUser;
+      if (currentUser != null &&
+          currentUser.email?.trim().toLowerCase() == normalizedEmail) {
+        try {
+          await currentUser.updatePassword(newPassword);
+        } on FirebaseAuthException {
+          // The Firestore-backed reset already completed successfully.
+        }
+      }
     } catch (e) {
+      if (e is FirebaseAuthException) {
+        throw e.message ?? 'Failed to reset password.';
+      }
       rethrow;
     }
   }
