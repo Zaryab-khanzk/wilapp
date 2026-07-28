@@ -280,7 +280,130 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
     );
   }
 
-  Widget _buildUserCard(_DashboardUser user, {bool showActions = false}) {
+  // Builds the action row shown at the bottom of a user card. The available
+  // actions depend on the user's current status:
+  //  - pending  -> Reject / Approve
+  //  - approved -> Revoke Access (blocks sign-in going forward)
+  //  - rejected -> Grant Access (re-approves the user)
+  // NOTE: this only updates the `status` field in Firestore. For this to
+  // actually stop a revoked user from signing in, your auth flow (e.g.
+  // AuthService / LoginScreen) must check this field on sign-in and refuse
+  // access unless status == 'approved'.
+  Widget _buildActionRow(_DashboardUser user) {
+    switch (user.status) {
+      case 'pending':
+        return Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () => _updateUserStatus(user, 'rejected'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFFFF6B6B),
+                  side: const BorderSide(color: Color(0xFFFF6B6B)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                icon: const Icon(Icons.close),
+                label: const Text('Reject'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: () => _updateUserStatus(user, 'approved'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF38EF7D),
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                icon: const Icon(Icons.check),
+                label: const Text('Approve'),
+              ),
+            ),
+          ],
+        );
+      case 'approved':
+        return SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: () => _confirmAndUpdateStatus(
+              user,
+              newStatus: 'rejected',
+              title: 'Revoke access?',
+              message:
+                  '${user.displayName} will no longer be able to sign in until access is granted again.',
+              confirmLabel: 'Revoke',
+            ),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: const Color(0xFFFF6B6B),
+              side: const BorderSide(color: Color(0xFFFF6B6B)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            icon: const Icon(Icons.block),
+            label: const Text('Revoke Access'),
+          ),
+        );
+      case 'rejected':
+        return SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () => _updateUserStatus(user, 'approved'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF38EF7D),
+              foregroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            icon: const Icon(Icons.check_circle_outline),
+            label: const Text('Grant Access'),
+          ),
+        );
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+
+  Future<void> _confirmAndUpdateStatus(
+    _DashboardUser user, {
+    required String newStatus,
+    required String title,
+    required String message,
+    required String confirmLabel,
+  }) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF232329),
+        title: Text(title, style: const TextStyle(color: Colors.white)),
+        content: Text(message, style: const TextStyle(color: Colors.white70)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(
+              confirmLabel,
+              style: const TextStyle(color: Color(0xFFFF6B6B)),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await _updateUserStatus(user, newStatus);
+    }
+  }
+
+  Widget _buildUserCard(_DashboardUser user) {
     final statusColor = switch (user.status) {
       'approved' => const Color(0xFF38EF7D),
       'rejected' => const Color(0xFFFF6B6B),
@@ -349,42 +472,8 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
                 _InfoChip(label: 'Phone', value: user.phone),
             ],
           ),
-          if (showActions) ...[
-            const SizedBox(height: 14),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => _updateUserStatus(user, 'rejected'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFFFF6B6B),
-                      side: const BorderSide(color: Color(0xFFFF6B6B)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                    icon: const Icon(Icons.close),
-                    label: const Text('Reject'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => _updateUserStatus(user, 'approved'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF38EF7D),
-                      foregroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                    icon: const Icon(Icons.check),
-                    label: const Text('Approve'),
-                  ),
-                ),
-              ],
-            ),
-          ],
+          const SizedBox(height: 14),
+          _buildActionRow(user),
         ],
       ),
     );
@@ -526,7 +615,6 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
                                             itemBuilder: (context, index) {
                                               return _buildUserCard(
                                                 pendingUsers[index],
-                                                showActions: true,
                                               );
                                             },
                                           ),

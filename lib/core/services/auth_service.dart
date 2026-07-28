@@ -121,12 +121,20 @@ class AuthService {
         throw 'User profile not found.';
       }
 
-      final role = (userData['role'] as String? ?? 'user').toLowerCase();
       final status = (userData['status'] as String? ?? 'pending').toLowerCase();
 
-      if (role == 'user' && status != 'approved') {
+      // This check now applies to every role, not just 'user'. That means
+      // revoking access from the SuperAdmin dashboard actually blocks
+      // sign-in regardless of whether the account is a regular user or an
+      // admin account. The message shown differs depending on whether the
+      // account was never approved yet (pending) or had access taken away
+      // after previously being approved (revoked).
+      if (status != 'approved') {
         await _auth.signOut();
-        throw 'Your account is pending admin approval.';
+        if (status == 'pending') {
+          throw 'Your account is pending admin approval.';
+        }
+        throw 'Your access has been revoked. Please contact an administrator.';
       }
 
       return AuthResult(userCredential: userCredential, userData: userData);
