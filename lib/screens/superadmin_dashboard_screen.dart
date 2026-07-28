@@ -101,11 +101,26 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
     return users.where(_matchesSearch).where(_matchesFilters).toList();
   }
 
+  // Pending approvals are now ordered by when the request was submitted
+  // (oldest first), instead of relying on the alphabetical order inherited
+  // from `_buildAllUsers`. Users without a `createdAt` timestamp are pushed
+  // to the end rather than breaking the sort.
   List<_DashboardUser> _buildPendingUsers(List<_DashboardUser> users) {
-    return users
+    final pending = users
         .where((user) => user.status == 'pending')
         .where(_matchesSearch)
         .toList();
+
+    pending.sort((a, b) {
+      final aTime = a.createdAt;
+      final bTime = b.createdAt;
+      if (aTime == null && bTime == null) return 0;
+      if (aTime == null) return 1;
+      if (bTime == null) return -1;
+      return aTime.compareTo(bTime);
+    });
+
+    return pending;
   }
 
   Widget _buildBackground() {
@@ -437,104 +452,113 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
                       ],
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                      stream: _firestore.collection('users').snapshots(),
-                      builder: (context, snapshot) {
-                        final allUsers = snapshot.hasData
-                            ? _buildAllUsers(snapshot.data!)
-                            : <_DashboardUser>[];
-                        final visibleUsers = _buildVisibleUsers(allUsers);
-                        final pendingUsers = _buildPendingUsers(allUsers);
+                  // Wrapping the rest of the body in Expanded means it always
+                  // takes exactly the remaining vertical space, so nothing
+                  // gets pushed past the bottom of the screen no matter the
+                  // device size or amount of content.
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                        stream: _firestore.collection('users').snapshots(),
+                        builder: (context, snapshot) {
+                          final allUsers = snapshot.hasData
+                              ? _buildAllUsers(snapshot.data!)
+                              : <_DashboardUser>[];
+                          final visibleUsers = _buildVisibleUsers(allUsers);
+                          final pendingUsers = _buildPendingUsers(allUsers);
 
-                        return Column(
-                          children: [
-                            _buildSearchBar(),
-                            const SizedBox(height: 12),
-                            _buildFilterRow(),
-                            const SizedBox(height: 16),
-                            Row(
-                              children: [
-                                _buildStatCard(
-                                  'Pending',
-                                  pendingUsers.length.toString(),
-                                  const Color(0xFFFFC857),
-                                ),
-                                const SizedBox(width: 12),
-                                _buildStatCard(
-                                  'Visible Users',
-                                  visibleUsers.length.toString(),
-                                  const Color(0xFF38EF7D),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            const TabBar(
-                              labelColor: Colors.white,
-                              unselectedLabelColor: Colors.white54,
-                              indicatorColor: Color(0xFF38EF7D),
-                              tabs: [
-                                Tab(text: 'Pending Approvals'),
-                                Tab(text: 'All Users'),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.62,
-                              child: TabBarView(
+                          return Column(
+                            children: [
+                              _buildSearchBar(),
+                              const SizedBox(height: 12),
+                              _buildFilterRow(),
+                              const SizedBox(height: 16),
+                              Row(
                                 children: [
-                                  snapshot.connectionState ==
-                                          ConnectionState.waiting
-                                      ? const Center(
-                                          child: CircularProgressIndicator(
-                                            color: Colors.white,
-                                          ),
-                                        )
-                                      : pendingUsers.isEmpty
-                                      ? _buildEmptyState(
-                                          'No pending approvals right now.',
-                                        )
-                                      : ListView.builder(
-                                          padding: const EdgeInsets.only(
-                                            bottom: 20,
-                                          ),
-                                          itemCount: pendingUsers.length,
-                                          itemBuilder: (context, index) {
-                                            return _buildUserCard(
-                                              pendingUsers[index],
-                                              showActions: true,
-                                            );
-                                          },
-                                        ),
-                                  snapshot.connectionState ==
-                                          ConnectionState.waiting
-                                      ? const Center(
-                                          child: CircularProgressIndicator(
-                                            color: Colors.white,
-                                          ),
-                                        )
-                                      : visibleUsers.isEmpty
-                                      ? _buildEmptyState(
-                                          'No users match the current filters.',
-                                        )
-                                      : ListView.builder(
-                                          padding: const EdgeInsets.only(
-                                            bottom: 20,
-                                          ),
-                                          itemCount: visibleUsers.length,
-                                          itemBuilder: (context, index) {
-                                            return _buildUserCard(
-                                              visibleUsers[index],
-                                            );
-                                          },
-                                        ),
+                                  _buildStatCard(
+                                    'Pending',
+                                    pendingUsers.length.toString(),
+                                    const Color(0xFFFFC857),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  _buildStatCard(
+                                    'Visible Users',
+                                    visibleUsers.length.toString(),
+                                    const Color(0xFF38EF7D),
+                                  ),
                                 ],
                               ),
-                            ),
-                          ],
-                        );
-                      },
+                              const SizedBox(height: 12),
+                              const TabBar(
+                                labelColor: Colors.white,
+                                unselectedLabelColor: Colors.white54,
+                                indicatorColor: Color(0xFF38EF7D),
+                                tabs: [
+                                  Tab(text: 'Pending Approvals'),
+                                  Tab(text: 'All Users'),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              // Was a SizedBox with a hardcoded
+                              // MediaQuery-based height before, which could
+                              // overflow. Expanded now fills exactly what's
+                              // left, guaranteed no overflow.
+                              Expanded(
+                                child: TabBarView(
+                                  children: [
+                                    snapshot.connectionState ==
+                                            ConnectionState.waiting
+                                        ? const Center(
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                        : pendingUsers.isEmpty
+                                        ? _buildEmptyState(
+                                            'No pending approvals right now.',
+                                          )
+                                        : ListView.builder(
+                                            padding: const EdgeInsets.only(
+                                              bottom: 20,
+                                            ),
+                                            itemCount: pendingUsers.length,
+                                            itemBuilder: (context, index) {
+                                              return _buildUserCard(
+                                                pendingUsers[index],
+                                                showActions: true,
+                                              );
+                                            },
+                                          ),
+                                    snapshot.connectionState ==
+                                            ConnectionState.waiting
+                                        ? const Center(
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                        : visibleUsers.isEmpty
+                                        ? _buildEmptyState(
+                                            'No users match the current filters.',
+                                          )
+                                        : ListView.builder(
+                                            padding: const EdgeInsets.only(
+                                              bottom: 20,
+                                            ),
+                                            itemCount: visibleUsers.length,
+                                            itemBuilder: (context, index) {
+                                              return _buildUserCard(
+                                                visibleUsers[index],
+                                              );
+                                            },
+                                          ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],
@@ -556,6 +580,7 @@ class _DashboardUser {
   final String phone;
   final String role;
   final String status;
+  final DateTime? createdAt;
 
   const _DashboardUser({
     required this.reference,
@@ -566,12 +591,22 @@ class _DashboardUser {
     required this.phone,
     required this.role,
     required this.status,
+    required this.createdAt,
   });
 
   factory _DashboardUser.fromDoc(
     QueryDocumentSnapshot<Map<String, dynamic>> doc,
   ) {
     final data = doc.data();
+
+    DateTime? createdAt;
+    final rawCreatedAt = data['createdAt'];
+    if (rawCreatedAt is Timestamp) {
+      createdAt = rawCreatedAt.toDate();
+    } else if (rawCreatedAt is String) {
+      createdAt = DateTime.tryParse(rawCreatedAt);
+    }
+
     return _DashboardUser(
       reference: doc.reference,
       uid: data['uid']?.toString() ?? doc.id,
@@ -581,6 +616,7 @@ class _DashboardUser {
       phone: data['phone']?.toString() ?? '',
       role: (data['role']?.toString() ?? 'user').toLowerCase(),
       status: (data['status']?.toString() ?? 'pending').toLowerCase(),
+      createdAt: createdAt,
     );
   }
 
