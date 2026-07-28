@@ -142,7 +142,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF232329),
+        backgroundColor: AppColors.dropdownBackground,
         title: Text(title, style: const TextStyle(color: Colors.white)),
         content: Text(message, style: const TextStyle(color: Colors.white70)),
         actions: [
@@ -154,7 +154,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
             onPressed: () => Navigator.pop(context, true),
             child: Text(
               confirmLabel,
-              style: const TextStyle(color: Color(0xFFFF6B6B)),
+              style: const TextStyle(color: AppColors.errorLight),
             ),
           ),
         ],
@@ -224,9 +224,9 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF19191B),
+      backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF19191B),
+        backgroundColor: AppColors.scaffoldBackground,
         elevation: 0,
         title: const Text('User Details'),
         actions: [
@@ -279,9 +279,9 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
           final securityQuestion = data['securityQuestion']?.toString() ?? '';
 
           final statusColor = switch (status) {
-            'approved' => const Color(0xFF38EF7D),
-            'rejected' => const Color(0xFFFF6B6B),
-            _ => const Color(0xFFFFC857),
+            'approved' => AppColors.successLight,
+            'rejected' => AppColors.errorLight,
+            _ => AppColors.warning,
           };
 
           return SafeArea(
@@ -398,8 +398,10 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                           child: OutlinedButton.icon(
                             onPressed: () => _updateStatus('rejected'),
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: const Color(0xFFFF6B6B),
-                              side: const BorderSide(color: Color(0xFFFF6B6B)),
+                              foregroundColor: AppColors.errorLight,
+                              side: const BorderSide(
+                                color: AppColors.errorLight,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
@@ -413,7 +415,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                           child: ElevatedButton.icon(
                             onPressed: () => _updateStatus('approved'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF38EF7D),
+                              backgroundColor: AppColors.successLight,
                               foregroundColor: Colors.black,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
@@ -437,8 +439,8 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                           confirmLabel: 'Revoke',
                         ),
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: const Color(0xFFFF6B6B),
-                          side: const BorderSide(color: Color(0xFFFF6B6B)),
+                          foregroundColor: AppColors.errorLight,
+                          side: const BorderSide(color: AppColors.errorLight),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -453,7 +455,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                       child: ElevatedButton.icon(
                         onPressed: () => _updateStatus('approved'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF38EF7D),
+                          backgroundColor: AppColors.successLight,
                           foregroundColor: Colors.black,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),

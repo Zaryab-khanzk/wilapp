@@ -97,7 +97,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       suffixIcon: suffixIcon,
       border: InputBorder.none,
       contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-      errorStyle: const TextStyle(color: Color(0xFFFF6B6B), height: 0.9),
+      errorStyle: const TextStyle(color: AppColors.errorLight, height: 0.9),
     );
   }
 
@@ -172,7 +172,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF19191B),
+      backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(
         title: const Text(
           'Create Account',
@@ -200,7 +200,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 height: 180,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFF6C63FF).withOpacity(0.08),
+                  color: AppColors.glowPurple.withOpacity(0.08),
                 ),
               ),
             ),
@@ -214,7 +214,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 height: 160,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFF38EF7D).withOpacity(0.06),
+                  color: AppColors.glowGreen.withOpacity(0.06),
                 ),
               ),
             ),
@@ -591,7 +591,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: DropdownButtonFormField<String>(
                             isExpanded: true,
                             value: _selectedSecurityQuestion,
-                            dropdownColor: const Color(0xFF232326),
+                            dropdownColor: AppColors.dropdownBackground,
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 14,

@@ -58,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen>
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF19191B),
+      backgroundColor: AppColors.scaffoldBackground,
       body: SizedBox(
         width: size.width,
         height: size.height,
@@ -74,7 +74,7 @@ class _SplashScreenState extends State<SplashScreen>
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
-                    colors: [Color(0xFF6C63FF), Color(0xFF00F2FE)],
+                    colors: [AppColors.glowPurple, AppColors.glowCyan],
                   ),
                 ),
               ),
@@ -90,7 +90,7 @@ class _SplashScreenState extends State<SplashScreen>
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
-                    colors: [Color(0xFFFF6584), Color(0xFF38EF7D)],
+                    colors: [AppColors.glowPink, AppColors.glowGreen],
                   ),
                 ),
               ),

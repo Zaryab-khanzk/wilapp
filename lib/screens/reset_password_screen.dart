@@ -97,7 +97,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF19191B),
+      backgroundColor: AppColors.scaffoldBackground,
       body: SizedBox(
         width: size.width,
         height: size.height,
@@ -112,7 +112,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
-                    colors: [Color(0xFF2C3545), Color(0xFF1E2B37)],
+                    colors: [
+                      AppColors.darkGradientStart,
+                      AppColors.darkGradientEnd,
+                    ],
                   ),
                 ),
               ),
@@ -126,7 +129,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
-                    colors: [Color(0xFF23332A), Color(0xFF1B2822)],
+                    colors: [
+                      AppColors.greenGradientStart,
+                      AppColors.greenGradientEnd,
+                    ],
                   ),
                 ),
               ),

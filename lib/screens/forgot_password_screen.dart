@@ -83,7 +83,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF19191B),
+      backgroundColor: AppColors.scaffoldBackground,
       body: SizedBox(
         width: size.width,
         height: size.height,
@@ -98,7 +98,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
-                    colors: [Color(0xFF2C3545), Color(0xFF1E2B37)],
+                    colors: [
+                      AppColors.darkGradientStart,
+                      AppColors.darkGradientEnd,
+                    ],
                   ),
                 ),
               ),
@@ -112,7 +115,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
-                    colors: [Color(0xFF23332A), Color(0xFF1B2822)],
+                    colors: [
+                      AppColors.greenGradientStart,
+                      AppColors.greenGradientEnd,
+                    ],
                   ),
                 ),
               ),
@@ -203,7 +209,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               child: DropdownButtonFormField<String>(
                                 isExpanded: true,
                                 value: _selectedSecurityQuestion,
-                                dropdownColor: const Color(0xFF252528),
+                                dropdownColor: AppColors.dropdownBackground,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 15,

@@ -22,7 +22,7 @@ class UserHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF19191B),
+      backgroundColor: AppColors.scaffoldBackground,
       body: Stack(
         children: [
           Positioned(
@@ -33,7 +33,7 @@ class UserHomeScreen extends StatelessWidget {
               height: 220,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFF6C63FF).withOpacity(0.16),
+                color: AppColors.glowPurple.withOpacity(0.16),
               ),
             ),
           ),
@@ -45,7 +45,7 @@ class UserHomeScreen extends StatelessWidget {
               height: 220,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFF38EF7D).withOpacity(0.12),
+                color: AppColors.glowGreen.withOpacity(0.12),
               ),
             ),
           ),

@@ -144,7 +144,7 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
             height: 220,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFF6C63FF).withOpacity(0.16),
+              color: AppColors.glowPurple.withOpacity(0.16),
             ),
           ),
         ),
@@ -156,7 +156,7 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
             height: 220,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFF00F2FE).withOpacity(0.12),
+              color: AppColors.glowCyan.withOpacity(0.12),
             ),
           ),
         ),
@@ -232,7 +232,7 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
         Expanded(
           child: DropdownButtonFormField<String>(
             value: _roleFilter,
-            dropdownColor: const Color(0xFF232329),
+            dropdownColor: AppColors.dropdownBackground,
             decoration: _dropdownDecoration('Role'),
             iconEnabledColor: Colors.white70,
             style: const TextStyle(color: Colors.white),
@@ -252,7 +252,7 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
         Expanded(
           child: DropdownButtonFormField<String>(
             value: _statusFilter,
-            dropdownColor: const Color(0xFF232329),
+            dropdownColor: AppColors.dropdownBackground,
             decoration: _dropdownDecoration('Status'),
             iconEnabledColor: Colors.white70,
             style: const TextStyle(color: Colors.white),
@@ -308,8 +308,8 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
               child: OutlinedButton.icon(
                 onPressed: () => _updateUserStatus(user, 'rejected'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFFFF6B6B),
-                  side: const BorderSide(color: Color(0xFFFF6B6B)),
+                  foregroundColor: AppColors.errorLight,
+                  side: const BorderSide(color: AppColors.errorLight),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -323,7 +323,7 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
               child: ElevatedButton.icon(
                 onPressed: () => _updateUserStatus(user, 'approved'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF38EF7D),
+                  backgroundColor: AppColors.successLight,
                   foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
@@ -348,8 +348,8 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
               confirmLabel: 'Revoke',
             ),
             style: OutlinedButton.styleFrom(
-              foregroundColor: const Color(0xFFFF6B6B),
-              side: const BorderSide(color: Color(0xFFFF6B6B)),
+              foregroundColor: AppColors.errorLight,
+              side: const BorderSide(color: AppColors.errorLight),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
               ),
@@ -364,7 +364,7 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
           child: ElevatedButton.icon(
             onPressed: () => _updateUserStatus(user, 'approved'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF38EF7D),
+              backgroundColor: AppColors.successLight,
               foregroundColor: Colors.black,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
@@ -389,7 +389,7 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF232329),
+        backgroundColor: AppColors.dropdownBackground,
         title: Text(title, style: const TextStyle(color: Colors.white)),
         content: Text(message, style: const TextStyle(color: Colors.white70)),
         actions: [
@@ -401,7 +401,7 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
             onPressed: () => Navigator.pop(context, true),
             child: Text(
               confirmLabel,
-              style: const TextStyle(color: Color(0xFFFF6B6B)),
+              style: const TextStyle(color: AppColors.errorLight),
             ),
           ),
         ],
@@ -415,9 +415,9 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
 
   Widget _buildUserCard(_DashboardUser user) {
     final statusColor = switch (user.status) {
-      'approved' => const Color(0xFF38EF7D),
-      'rejected' => const Color(0xFFFF6B6B),
-      _ => const Color(0xFFFFC857),
+      'approved' => AppColors.successLight,
+      'rejected' => AppColors.errorLight,
+      _ => AppColors.warning,
     };
 
     return Material(
@@ -519,7 +519,7 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: const Color(0xFF19191B),
+        backgroundColor: AppColors.scaffoldBackground,
         body: Stack(
           children: [
             _buildBackground(),
@@ -585,13 +585,13 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
                                   _buildStatCard(
                                     'Pending',
                                     pendingUsers.length.toString(),
-                                    const Color(0xFFFFC857),
+                                    AppColors.warning,
                                   ),
                                   const SizedBox(width: 12),
                                   _buildStatCard(
                                     'Visible Users',
                                     visibleUsers.length.toString(),
-                                    const Color(0xFF38EF7D),
+                                    AppColors.successLight,
                                   ),
                                 ],
                               ),
@@ -599,7 +599,7 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
                               const TabBar(
                                 labelColor: Colors.white,
                                 unselectedLabelColor: Colors.white54,
-                                indicatorColor: Color(0xFF38EF7D),
+                                indicatorColor: AppColors.successLight,
                                 tabs: [
                                   Tab(text: 'Pending Approvals'),
                                   Tab(text: 'All Users'),
