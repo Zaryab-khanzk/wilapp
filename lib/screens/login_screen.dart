@@ -4,6 +4,8 @@ import '../core/colors/app_colors.dart';
 import '../core/services/auth_service.dart';
 import 'forgot_password_screen.dart';
 import 'register_screen.dart';
+import 'superadmin_dashboard_screen.dart';
+import 'user_home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -35,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isLoading = true);
     try {
-      await AuthService().loginUser(
+      final authResult = await AuthService().loginUser(
         email: _emailController.text,
         password: _passwordController.text,
       );
@@ -46,7 +48,25 @@ class _LoginScreenState extends State<LoginScreen> {
             backgroundColor: AppColors.success,
           ),
         );
-        // TODO: Navigate to home screen here
+
+        if (authResult.role == 'superadmin') {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const SuperAdminDashboardScreen(),
+            ),
+            (route) => false,
+          );
+          return;
+        }
+
+        if (authResult.role == 'user' && authResult.status == 'approved') {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const UserHomeScreen()),
+            (route) => false,
+          );
+        }
       }
     } catch (e) {
       if (mounted) {

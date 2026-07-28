@@ -4,6 +4,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+class AuthResult {
+  final UserCredential userCredential;
+  final Map<String, dynamic> userData;
+
+  const AuthResult({required this.userCredential, required this.userData});
+
+  String get role => (userData['role'] as String? ?? 'user').toLowerCase();
+  String get status =>
+      (userData['status'] as String? ?? 'pending').toLowerCase();
+}
+
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -41,6 +52,8 @@ class AuthService {
         'firstName': firstName,
         'lastName': lastName,
         'email': _normalizeEmail(email),
+        'role': 'user',
+        'status': 'pending',
         'phone': phone,
         'cnic': cnic,
         'address': address,
@@ -59,46 +72,64 @@ class AuthService {
     }
   }
 
+  Future<DocumentSnapshot<Map<String, dynamic>>> _getUserDocument({
+    required String uid,
+    required String email,
+  }) async {
+    final userDoc = await _firestore.collection('users').doc(uid).get();
+    if (userDoc.exists) {
+      return userDoc;
+    }
+
+    final querySnapshot = await _firestore
+        .collection('users')
+        .where('email', isEqualTo: email)
+        .limit(1)
+        .get();
+
+    if (querySnapshot.docs.isEmpty) {
+      throw 'User profile not found.';
+    }
+
+    return querySnapshot.docs.first;
+  }
+
   // 2. Login User
-  Future<void> loginUser({
+  Future<AuthResult> loginUser({
     required String email,
     required String password,
   }) async {
     try {
       final normalizedEmail = _normalizeEmail(email);
-      final querySnapshot = await _firestore
-          .collection('users')
-          .where('email', isEqualTo: normalizedEmail)
-          .limit(1)
-          .get();
+      final userCredential = await _auth.signInWithEmailAndPassword(
+        email: normalizedEmail,
+        password: password,
+      );
 
-      if (querySnapshot.docs.isEmpty) {
-        throw 'No account found with this email address.';
+      final signedInUser = userCredential.user;
+      if (signedInUser == null) {
+        throw 'Unable to sign in.';
       }
 
-      final userDoc = querySnapshot.docs.first;
+      final userDoc = await _getUserDocument(
+        uid: signedInUser.uid,
+        email: normalizedEmail,
+      );
+
       final userData = userDoc.data();
-      final storedPasswordHash = userData['passwordHash'] as String?;
-      final providedPasswordHash = _hashPassword(password);
-
-      if (storedPasswordHash == null || storedPasswordHash.isEmpty) {
-        await _auth.signInWithEmailAndPassword(
-          email: normalizedEmail,
-          password: password,
-        );
-
-        await userDoc.reference.update({
-          'passwordHash': providedPasswordHash,
-          'passwordUpdatedAt': FieldValue.serverTimestamp(),
-        });
-        return;
+      if (userData == null) {
+        throw 'User profile not found.';
       }
 
-      if (storedPasswordHash != providedPasswordHash) {
-        throw 'Invalid email or password.';
+      final role = (userData['role'] as String? ?? 'user').toLowerCase();
+      final status = (userData['status'] as String? ?? 'pending').toLowerCase();
+
+      if (role == 'user' && status != 'approved') {
+        await _auth.signOut();
+        throw 'Your account is pending admin approval.';
       }
 
-      return;
+      return AuthResult(userCredential: userCredential, userData: userData);
     } on FirebaseAuthException catch (e) {
       throw e.message ?? 'Login failed. Please check your credentials.';
     } catch (e) {
@@ -107,6 +138,11 @@ class AuthService {
   }
 
   // 3. Verify Security Answer
+
+  Future<void> signOut() async {
+    await _auth.signOut();
+  }
+
   Future<String> verifySecurityAnswer({
     required String email,
     required String securityQuestion,
