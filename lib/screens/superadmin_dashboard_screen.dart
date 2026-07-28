@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../core/colors/app_colors.dart';
 import '../core/services/auth_service.dart';
 import 'login_screen.dart';
+import 'user_detail_screen.dart';
 
 class SuperAdminDashboardScreen extends StatefulWidget {
   const SuperAdminDashboardScreen({super.key});
@@ -121,6 +122,15 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
     });
 
     return pending;
+  }
+
+  void _openUserDetail(_DashboardUser user) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => UserDetailScreen(userRef: user.reference),
+      ),
+    );
   }
 
   Widget _buildBackground() {
@@ -410,71 +420,78 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
       _ => const Color(0xFFFFC857),
     };
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.07),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+        onTap: () => _openUserDetail(user),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 14),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.07),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white.withOpacity(0.1)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                radius: 24,
-                backgroundColor: AppColors.primary.withOpacity(0.55),
-                child: Text(
-                  user.initials,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      user.displayName,
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 24,
+                    backgroundColor: AppColors.primary.withOpacity(0.55),
+                    child: Text(
+                      user.initials,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 16,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      user.email,
-                      style: const TextStyle(color: Colors.white60),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          user.displayName,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          user.email,
+                          style: const TextStyle(color: Colors.white60),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+              const SizedBox(height: 14),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _InfoChip(label: 'Role', value: user.role),
+                  _InfoChip(
+                    label: 'Status',
+                    value: user.status,
+                    valueColor: statusColor,
+                  ),
+                  if (user.phone.isNotEmpty)
+                    _InfoChip(label: 'Phone', value: user.phone),
+                ],
+              ),
+              const SizedBox(height: 14),
+              _buildActionRow(user),
             ],
           ),
-          const SizedBox(height: 14),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _InfoChip(label: 'Role', value: user.role),
-              _InfoChip(
-                label: 'Status',
-                value: user.status,
-                valueColor: statusColor,
-              ),
-              if (user.phone.isNotEmpty)
-                _InfoChip(label: 'Phone', value: user.phone),
-            ],
-          ),
-          const SizedBox(height: 14),
-          _buildActionRow(user),
-        ],
+        ),
       ),
     );
   }
