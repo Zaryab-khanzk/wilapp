@@ -33,11 +33,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final FocusNode _phoneFocusNode = FocusNode();
   final FocusNode _cnicFocusNode = FocusNode();
 
+  // State Variables
+  String? _selectedSex;
   DateTime? _selectedDob;
   String? _selectedSecurityQuestion;
   bool _isLoading = false;
   bool _isPasswordObscured = true;
   bool _isConfirmPasswordObscured = true;
+
+  // Options Lists
+  final List<String> _sexOptions = ['Male', 'Female', 'Rather not to say'];
 
   final List<String> _securityQuestions = [
     'What was the name of your first pet?',
@@ -115,6 +120,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
+    if (_selectedSex == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select an option for Sex')),
+      );
+      return;
+    }
+
     if (_selectedSecurityQuestion == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select a security question')),
@@ -133,6 +145,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         cnic: _cnicController.text.trim(),
         address: _addressController.text.trim(),
         dob: _selectedDob!,
+        sex: _selectedSex!,
         securityQuestion: _selectedSecurityQuestion!,
         securityAnswer: _securityAnswerController.text.trim(),
       );
@@ -580,6 +593,46 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                               return null;
                             },
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+
+                        // Sex / Gender Dropdown
+                        Container(
+                          padding: const EdgeInsets.only(right: 12.0),
+                          decoration: _fieldBoxDecoration(),
+                          child: DropdownButtonFormField<String>(
+                            isExpanded: true,
+                            value: _selectedSex,
+                            dropdownColor: AppColors.dropdownBackground,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                            ),
+                            hint: const Text(
+                              'Sex',
+                              style: TextStyle(
+                                color: Colors.white54,
+                                fontSize: 14,
+                              ),
+                            ),
+                            decoration: _inputDecoration(
+                              '',
+                              icon: Icons.person_outline,
+                            ),
+                            items: _sexOptions.map((String sex) {
+                              return DropdownMenuItem<String>(
+                                value: sex,
+                                child: Text(
+                                  sex,
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (val) =>
+                                setState(() => _selectedSex = val),
+                            validator: (val) =>
+                                val == null ? 'Please select an option' : null,
                           ),
                         ),
                         const SizedBox(height: 14),

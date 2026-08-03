@@ -35,6 +35,7 @@ class AuthService {
     required String cnic,
     required String address,
     required DateTime dob,
+    required String sex,
     required String securityQuestion,
     required String securityAnswer,
   }) async {
@@ -58,6 +59,7 @@ class AuthService {
         'cnic': cnic,
         'address': address,
         'dob': dob.toIso8601String(),
+        'sex': sex,
         'securityQuestion': securityQuestion,
         'securityAnswer': securityAnswer.trim().toLowerCase(),
         'passwordHash': _hashPassword(password),
