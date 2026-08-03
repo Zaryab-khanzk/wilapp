@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import '../core/colors/app_colors.dart';
+import '../../core/colors/app_colors.dart';
 
 class UserDetailScreen extends StatefulWidget {
   final DocumentReference<Map<String, dynamic>> userRef;

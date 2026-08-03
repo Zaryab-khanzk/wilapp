@@ -3,9 +3,9 @@ import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import '../core/colors/app_colors.dart';
-import '../core/services/auth_service.dart';
-import 'login_screen.dart';
+import '../../core/colors/app_colors.dart';
+import '../../core/services/auth_service.dart';
+import '../auth_screens/login_screen.dart';
 import 'user_detail_screen.dart';
 
 class SuperAdminDashboardScreen extends StatefulWidget {
