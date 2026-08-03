@@ -74,6 +74,29 @@ class AuthService {
     }
   }
 
+  // Helper method to fetch user document safely by UID or Email
+  Future<DocumentSnapshot<Map<String, dynamic>>> _getUserDocument({
+    String? uid,
+    required String email,
+  }) async {
+    if (uid != null) {
+      final doc = await _firestore.collection('users').doc(uid).get();
+      if (doc.exists) return doc;
+    }
+
+    final querySnapshot = await _firestore
+        .collection('users')
+        .where('email', isEqualTo: email)
+        .limit(1)
+        .get();
+
+    if (querySnapshot.docs.isEmpty) {
+      throw 'User profile not found.';
+    }
+
+    return querySnapshot.docs.first;
+  }
+
   // 2. Login User
   Future<AuthResult> loginUser({
     required String email,
@@ -82,45 +105,46 @@ class AuthService {
     try {
       final normalizedEmail = _normalizeEmail(email);
 
-      final querySnapshot = await _firestore
-          .collection('users')
-          .where('email', isEqualTo: normalizedEmail)
-          .limit(1)
-          .get();
-
-      if (querySnapshot.docs.isEmpty) {
-        throw 'User profile not found.';
-      }
-
-      final userData = querySnapshot.docs.first.data();
-
-      // Check hashed password
-      final inputPasswordHash = _hashPassword(password);
-      final storedPasswordHash = userData['passwordHash'] as String?;
-
-      if (storedPasswordHash != null &&
-          storedPasswordHash != inputPasswordHash) {
-        throw 'Incorrect email or password.';
-      }
-
-      // Check account status
-      final status = (userData['status'] as String? ?? 'pending').toLowerCase();
-      if (status != 'approved') {
-        await _auth.signOut();
-        if (status == 'pending') {
-          throw 'Your account is pending admin approval.';
-        }
-        throw 'Your access has been revoked. Please contact an administrator.';
-      }
-
+      // Authenticate with Firebase Auth first
       UserCredential? userCredential;
       try {
         userCredential = await _auth.signInWithEmailAndPassword(
           email: normalizedEmail,
           password: password,
         );
-      } catch (_) {
-        // Fallback to Firestore password validation if Firebase Auth is out of sync
+      } catch (authError) {
+        // If Firebase Auth fails, try verifying via Firestore hash fallback
+      }
+
+      final uid = userCredential?.user?.uid;
+      final userDoc = await _getUserDocument(uid: uid, email: normalizedEmail);
+      final userData = userDoc.data();
+
+      if (userData == null) {
+        throw 'User profile not found.';
+      }
+
+      // If user wasn't signed in via FirebaseAuth, check Firestore hashed password
+      if (userCredential == null) {
+        final inputPasswordHash = _hashPassword(password);
+        final storedPasswordHash = userData['passwordHash'] as String?;
+
+        if (storedPasswordHash != null &&
+            storedPasswordHash != inputPasswordHash) {
+          throw 'Incorrect email or password.';
+        }
+      }
+
+      // Check user status (Superadmins bypass pending state check)
+      final role = (userData['role'] as String? ?? 'user').toLowerCase();
+      final status = (userData['status'] as String? ?? 'pending').toLowerCase();
+
+      if (role != 'superadmin' && status != 'approved') {
+        await _auth.signOut();
+        if (status == 'pending') {
+          throw 'Your account is pending admin approval.';
+        }
+        throw 'Your access has been revoked. Please contact an administrator.';
       }
 
       return AuthResult(userCredential: userCredential, userData: userData);
@@ -136,7 +160,7 @@ class AuthService {
     await _auth.signOut();
   }
 
-  // 4. Verify Security Answer (Optimized for Firestore Rules)
+  // 4. Verify Security Answer
   Future<String> verifySecurityAnswer({
     required String email,
     required String securityQuestion,
@@ -169,9 +193,6 @@ class AuthService {
 
       return normalizedEmail;
     } catch (e) {
-      if (e.toString().contains('permission-denied')) {
-        throw 'Permission denied. Please ensure your Firestore Security Rules are published.';
-      }
       rethrow;
     }
   }
@@ -196,7 +217,6 @@ class AuthService {
       final docId = querySnapshot.docs.first.id;
       final passwordHash = _hashPassword(newPassword);
 
-      // Direct document update by ID bypasses collection query restriction
       await _firestore.collection('users').doc(docId).update({
         'passwordHash': passwordHash,
         'passwordUpdatedAt': FieldValue.serverTimestamp(),
