@@ -102,10 +102,6 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
     return users.where(_matchesSearch).where(_matchesFilters).toList();
   }
 
-  // Pending approvals are now ordered by when the request was submitted
-  // (oldest first), instead of relying on the alphabetical order inherited
-  // from `_buildAllUsers`. Users without a `createdAt` timestamp are pushed
-  // to the end rather than breaking the sort.
   List<_DashboardUser> _buildPendingUsers(List<_DashboardUser> users) {
     final pending = users
         .where((user) => user.status == 'pending')
@@ -290,15 +286,6 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
     );
   }
 
-  // Builds the action row shown at the bottom of a user card. The available
-  // actions depend on the user's current status:
-  //  - pending  -> Reject / Approve
-  //  - approved -> Revoke Access (blocks sign-in going forward)
-  //  - rejected -> Grant Access (re-approves the user)
-  // NOTE: this only updates the `status` field in Firestore. For this to
-  // actually stop a revoked user from signing in, your auth flow (e.g.
-  // AuthService / LoginScreen) must check this field on sign-in and refuse
-  // access unless status == 'approved'.
   Widget _buildActionRow(_DashboardUser user) {
     switch (user.status) {
       case 'pending':
@@ -550,18 +537,75 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
                             ],
                           ),
                         ),
-                        IconButton(
-                          onPressed: _logout,
-                          icon: const Icon(Icons.logout, color: Colors.white),
-                          tooltip: 'Logout',
+
+                        // Hamburger Menu replace standalone Logout Button
+                        PopupMenuButton<String>(
+                          icon: const Icon(Icons.menu, color: Colors.white),
+                          color: AppColors.dropdownBackground,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            side: BorderSide(
+                              color: Colors.white.withOpacity(0.1),
+                            ),
+                          ),
+                          onSelected: (value) {
+                            if (value == 'charts') {
+                              // TODO: Update route to match your charts screen class
+                              // Navigator.push(
+                              //   context,
+                              //   MaterialPageRoute(builder: (context) => const ChartsScreen()),
+                              // );
+                            } else if (value == 'logout') {
+                              _logout();
+                            }
+                          },
+                          itemBuilder: (BuildContext context) => [
+                            const PopupMenuItem<String>(
+                              value: 'charts',
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.pie_chart_outline,
+                                    color: Colors.white70,
+                                    size: 20,
+                                  ),
+                                  SizedBox(width: 12),
+                                  Text(
+                                    'Charts & Analytics',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const PopupMenuDivider(),
+                            const PopupMenuItem<String>(
+                              value: 'logout',
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.logout,
+                                    color: AppColors.errorLight,
+                                    size: 20,
+                                  ),
+                                  SizedBox(width: 12),
+                                  Text(
+                                    'Logout',
+                                    style: TextStyle(
+                                      color: AppColors.errorLight,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                  // Wrapping the rest of the body in Expanded means it always
-                  // takes exactly the remaining vertical space, so nothing
-                  // gets pushed past the bottom of the screen no matter the
-                  // device size or amount of content.
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -606,10 +650,6 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
                                 ],
                               ),
                               const SizedBox(height: 16),
-                              // Was a SizedBox with a hardcoded
-                              // MediaQuery-based height before, which could
-                              // overflow. Expanded now fills exactly what's
-                              // left, guaranteed no overflow.
                               Expanded(
                                 child: TabBarView(
                                   children: [
