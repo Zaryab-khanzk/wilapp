@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/colors/app_colors.dart';
+import '../../core/widgets/app_loader.dart';
 
 class UserDetailScreen extends StatefulWidget {
   final DocumentReference<Map<String, dynamic>> userRef;
@@ -170,18 +171,18 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
       labelText: label,
       labelStyle: const TextStyle(color: Colors.white54),
       filled: true,
-      fillColor: Colors.white.withOpacity(0.07),
+      fillColor: Colors.white.withValues(alpha: 0.07),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: AppColors.primary.withOpacity(0.8)),
+        borderSide: BorderSide(color: AppColors.primary.withValues(alpha: 0.8)),
       ),
       disabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: Colors.white.withOpacity(0.05)),
+        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
       ),
     );
   }
@@ -192,9 +193,9 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       ),
       child: Row(
         children: [
@@ -252,9 +253,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
         stream: widget.userRef.snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return const Center(
-              child: CircularProgressIndicator(color: Colors.white),
-            );
+            return const Center(child: AppLoader(color: Colors.white));
           }
 
           final data = snapshot.data!.data();
@@ -369,14 +368,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                           ),
                         ),
                         icon: _isSaving
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
+                            ? const AppLoader(size: 16, color: Colors.white)
                             : const Icon(Icons.save),
                         label: Text(_isSaving ? 'Saving...' : 'Save Changes'),
                       ),

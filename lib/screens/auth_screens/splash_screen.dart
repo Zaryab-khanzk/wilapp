@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../core/colors/app_colors.dart';
+import '../../core/widgets/app_loader.dart';
 import 'login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -100,7 +101,7 @@ class _SplashScreenState extends State<SplashScreen>
             Positioned.fill(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
-                child: Container(color: Colors.black.withOpacity(0.25)),
+                child: Container(color: Colors.black.withValues(alpha: 0.25)),
               ),
             ),
 
@@ -154,9 +155,9 @@ class _SplashScreenState extends State<SplashScreen>
                           SizedBox(
                             width: 28,
                             height: 28,
-                            child: CircularProgressIndicator(
+                            child: const AppLoader(
+                              size: 28,
                               color: AppColors.primary,
-                              strokeWidth: 3,
                             ),
                           ),
                         ],

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/colors/app_colors.dart';
 import '../../core/services/auth_service.dart';
+import '../../core/widgets/app_loader.dart';
 import 'login_screen.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
@@ -87,8 +88,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
         );
       }
     } finally {
-      if (!mounted) return;
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -298,7 +300,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                   ),
                                 ),
                                 child: _isLoading
-                                    ? const CircularProgressIndicator(
+                                    ? const AppLoader(
+                                        size: 20,
                                         color: Colors.white,
                                       )
                                     : const Text(

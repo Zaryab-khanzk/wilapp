@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/colors/app_colors.dart';
 import '../../core/services/auth_service.dart';
+import '../../core/widgets/app_loader.dart';
 import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -80,9 +81,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // Soft Glassmorphic Input Container Decoration
   BoxDecoration _fieldBoxDecoration() {
     return BoxDecoration(
-      color: Colors.white.withOpacity(0.05),
+      color: Colors.white.withValues(alpha: 0.05),
       borderRadius: BorderRadius.circular(14),
-      border: Border.all(color: Colors.white.withOpacity(0.12)),
+      border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
     );
   }
 
@@ -213,7 +214,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 height: 180,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.glowPurple.withOpacity(0.08),
+                  color: AppColors.glowPurple.withValues(alpha: 0.08),
                 ),
               ),
             ),
@@ -227,7 +228,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 height: 160,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.glowGreen.withOpacity(0.06),
+                  color: AppColors.glowGreen.withValues(alpha: 0.06),
                 ),
               ),
             ),
@@ -236,7 +237,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             Positioned.fill(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
-                child: Container(color: Colors.black.withOpacity(0.15)),
+                child: Container(color: Colors.black.withValues(alpha: 0.15)),
               ),
             ),
 
@@ -706,15 +707,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               backgroundColor: AppColors.primary,
                               foregroundColor: Colors.white,
                               elevation: 4,
-                              shadowColor: AppColors.primary.withOpacity(0.3),
+                              shadowColor: AppColors.primary.withValues(
+                                alpha: 0.3,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
                             ),
                             child: _isLoading
-                                ? const CircularProgressIndicator(
-                                    color: Colors.white,
-                                  )
+                                ? const AppLoader(size: 20, color: Colors.white)
                                 : const Text(
                                     'REGISTER',
                                     style: TextStyle(

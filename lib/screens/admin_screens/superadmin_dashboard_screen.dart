@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../../core/colors/app_colors.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/presence_service.dart';
+import '../../core/widgets/app_loader.dart';
 import '../auth_screens/login_screen.dart';
 import 'charts_screen.dart';
 import 'user_detail_screen.dart';
@@ -149,7 +150,7 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
             height: 220,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.glowPurple.withOpacity(0.16),
+              color: AppColors.glowPurple.withValues(alpha: 0.16),
             ),
           ),
         ),
@@ -161,14 +162,14 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
             height: 220,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.glowCyan.withOpacity(0.12),
+              color: AppColors.glowCyan.withValues(alpha: 0.12),
             ),
           ),
         ),
         Positioned.fill(
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 45, sigmaY: 45),
-            child: Container(color: Colors.black.withOpacity(0.32)),
+            child: Container(color: Colors.black.withValues(alpha: 0.32)),
           ),
         ),
       ],
@@ -180,9 +181,9 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.07),
+          color: Colors.white.withValues(alpha: 0.07),
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: Colors.white.withOpacity(0.1)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,9 +214,9 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
   Widget _buildSearchBar() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.07),
+        color: Colors.white.withValues(alpha: 0.07),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
       ),
       child: TextField(
         controller: _searchController,
@@ -283,14 +284,14 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
       labelText: label,
       labelStyle: const TextStyle(color: Colors.white54),
       filled: true,
-      fillColor: Colors.white.withOpacity(0.07),
+      fillColor: Colors.white.withValues(alpha: 0.07),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: AppColors.primary.withOpacity(0.8)),
+        borderSide: BorderSide(color: AppColors.primary.withValues(alpha: 0.8)),
       ),
     );
   }
@@ -425,9 +426,9 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
           margin: const EdgeInsets.only(bottom: 14),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.07),
+            color: Colors.white.withValues(alpha: 0.07),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withOpacity(0.1)),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -438,7 +439,9 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
                     children: [
                       CircleAvatar(
                         radius: 24,
-                        backgroundColor: AppColors.primary.withOpacity(0.55),
+                        backgroundColor: AppColors.primary.withValues(
+                          alpha: 0.55,
+                        ),
                         child: Text(
                           user.initials,
                           style: const TextStyle(
@@ -527,9 +530,9 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.06),
+          color: Colors.white.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withOpacity(0.08)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
         ),
         child: Text(
           message,
@@ -584,7 +587,7 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                             side: BorderSide(
-                              color: Colors.white.withOpacity(0.1),
+                              color: Colors.white.withValues(alpha: 0.1),
                             ),
                           ),
                           onSelected: (value) {
@@ -691,7 +694,7 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
                                     snapshot.connectionState ==
                                             ConnectionState.waiting
                                         ? const Center(
-                                            child: CircularProgressIndicator(
+                                            child: AppLoader(
                                               color: Colors.white,
                                             ),
                                           )
@@ -713,7 +716,7 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
                                     snapshot.connectionState ==
                                             ConnectionState.waiting
                                         ? const Center(
-                                            child: CircularProgressIndicator(
+                                            child: AppLoader(
                                               color: Colors.white,
                                             ),
                                           )
@@ -851,9 +854,9 @@ class _InfoChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.2),
+        color: Colors.black.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       ),
       child: RichText(
         text: TextSpan(

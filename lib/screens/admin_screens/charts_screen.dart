@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/colors/app_colors.dart';
 import '../../core/services/presence_service.dart';
+import '../../core/widgets/app_loader.dart';
 
 class ChartsScreen extends StatefulWidget {
   const ChartsScreen({super.key});
@@ -70,9 +71,11 @@ class _ChartsScreenState extends State<ChartsScreen> {
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.07),
+                      color: Colors.white.withValues(alpha: 0.07),
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: Colors.white.withOpacity(0.1)),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.1),
+                      ),
                     ),
                     child: TextField(
                       controller: _searchController,
@@ -110,7 +113,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
                         return const Center(
-                          child: CircularProgressIndicator(color: Colors.white),
+                          child: AppLoader(color: Colors.white),
                         );
                       }
 
@@ -249,7 +252,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
             height: 220,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.glowPurple.withOpacity(0.16),
+              color: AppColors.glowPurple.withValues(alpha: 0.16),
             ),
           ),
         ),
@@ -261,14 +264,14 @@ class _ChartsScreenState extends State<ChartsScreen> {
             height: 220,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.glowCyan.withOpacity(0.12),
+              color: AppColors.glowCyan.withValues(alpha: 0.12),
             ),
           ),
         ),
         Positioned.fill(
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 45, sigmaY: 45),
-            child: Container(color: Colors.black.withOpacity(0.32)),
+            child: Container(color: Colors.black.withValues(alpha: 0.32)),
           ),
         ),
       ],
@@ -292,14 +295,16 @@ class _ChartCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final total = sections.fold<int>(0, (sum, s) => sum + s.value);
+    final total = sections.fold<int>(0, (runningTotal, section) {
+      return runningTotal + section.value;
+    });
 
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.07),
+        color: Colors.white.withValues(alpha: 0.07),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

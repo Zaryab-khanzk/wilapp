@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/colors/app_colors.dart';
 import '../../core/services/auth_service.dart';
+import '../../core/widgets/app_loader.dart';
 import 'reset_password_screen.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -73,8 +74,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         );
       }
     } finally {
-      if (!mounted) return;
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -296,7 +298,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                   ),
                                 ),
                                 child: _isLoading
-                                    ? const CircularProgressIndicator(
+                                    ? const AppLoader(
+                                        size: 20,
                                         color: Colors.white,
                                       )
                                     : const Text(

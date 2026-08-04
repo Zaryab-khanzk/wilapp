@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../core/colors/app_colors.dart';
 import '../../core/services/auth_service.dart';
+import '../../core/widgets/app_loader.dart';
 import 'forgot_password_screen.dart';
 import 'register_screen.dart';
 import '../admin_screens/superadmin_dashboard_screen.dart';
@@ -129,7 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
             Positioned.fill(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
-                child: Container(color: Colors.black.withOpacity(0.2)),
+                child: Container(color: Colors.black.withValues(alpha: 0.2)),
               ),
             ),
 
@@ -173,10 +174,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Email Text Field
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.08),
+                          color: Colors.white.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.15),
+                            color: Colors.white.withValues(alpha: 0.15),
                           ),
                         ),
                         child: TextField(
@@ -203,10 +204,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Password Text Field with Visibility Toggle
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.08),
+                          color: Colors.white.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.15),
+                            color: Colors.white.withValues(alpha: 0.15),
                           ),
                         ),
                         child: TextField(
@@ -277,15 +278,15 @@ class _LoginScreenState extends State<LoginScreen> {
                             backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
                             elevation: 8,
-                            shadowColor: AppColors.primary.withOpacity(0.4),
+                            shadowColor: AppColors.primary.withValues(
+                              alpha: 0.4,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
                           ),
                           child: _isLoading
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white,
-                                )
+                              ? const AppLoader(size: 20, color: Colors.white)
                               : const Text(
                                   'LOGIN',
                                   style: TextStyle(
