@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 
 import '../../core/colors/app_colors.dart';
 import '../../core/services/auth_service.dart';
+import '../../core/services/presence_service.dart';
 import '../auth_screens/login_screen.dart';
+import 'charts_screen.dart';
 import 'user_detail_screen.dart';
 
 class SuperAdminDashboardScreen extends StatefulWidget {
@@ -126,6 +128,13 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
       MaterialPageRoute(
         builder: (context) => UserDetailScreen(userRef: user.reference),
       ),
+    );
+  }
+
+  void _openCharts() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ChartsScreen()),
     );
   }
 
@@ -425,16 +434,37 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
             children: [
               Row(
                 children: [
-                  CircleAvatar(
-                    radius: 24,
-                    backgroundColor: AppColors.primary.withOpacity(0.55),
-                    child: Text(
-                      user.initials,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
+                  Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 24,
+                        backgroundColor: AppColors.primary.withOpacity(0.55),
+                        child: Text(
+                          user.initials,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ),
-                    ),
+                      if (user.isOnline)
+                        Positioned(
+                          right: 0,
+                          bottom: 0,
+                          child: Container(
+                            width: 12,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: AppColors.successLight,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: AppColors.scaffoldBackground,
+                                width: 2,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -470,8 +500,17 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
                     value: user.status,
                     valueColor: statusColor,
                   ),
+                  if (user.sex.isNotEmpty)
+                    _InfoChip(label: 'Sex', value: user.sex),
                   if (user.phone.isNotEmpty)
                     _InfoChip(label: 'Phone', value: user.phone),
+                  _InfoChip(
+                    label: 'Presence',
+                    value: user.isOnline ? 'Online' : 'Offline',
+                    valueColor: user.isOnline
+                        ? AppColors.successLight
+                        : Colors.white38,
+                  ),
                 ],
               ),
               const SizedBox(height: 14),
@@ -550,11 +589,7 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
                           ),
                           onSelected: (value) {
                             if (value == 'charts') {
-                              // TODO: Update route to match your charts screen class
-                              // Navigator.push(
-                              //   context,
-                              //   MaterialPageRoute(builder: (context) => const ChartsScreen()),
-                              // );
+                              _openCharts();
                             } else if (value == 'logout') {
                               _logout();
                             }
@@ -725,7 +760,9 @@ class _DashboardUser {
   final String phone;
   final String role;
   final String status;
+  final String sex;
   final DateTime? createdAt;
+  final DateTime? lastActive;
 
   const _DashboardUser({
     required this.reference,
@@ -736,7 +773,9 @@ class _DashboardUser {
     required this.phone,
     required this.role,
     required this.status,
+    required this.sex,
     required this.createdAt,
+    required this.lastActive,
   });
 
   factory _DashboardUser.fromDoc(
@@ -752,6 +791,12 @@ class _DashboardUser {
       createdAt = DateTime.tryParse(rawCreatedAt);
     }
 
+    DateTime? lastActive;
+    final rawLastActive = data['lastActive'];
+    if (rawLastActive is Timestamp) {
+      lastActive = rawLastActive.toDate();
+    }
+
     return _DashboardUser(
       reference: doc.reference,
       uid: data['uid']?.toString() ?? doc.id,
@@ -761,9 +806,15 @@ class _DashboardUser {
       phone: data['phone']?.toString() ?? '',
       role: (data['role']?.toString() ?? 'user').toLowerCase(),
       status: (data['status']?.toString() ?? 'pending').toLowerCase(),
+      sex: (data['sex']?.toString() ?? '').toLowerCase(),
       createdAt: createdAt,
+      lastActive: lastActive,
     );
   }
+
+  bool get isOnline =>
+      lastActive != null &&
+      DateTime.now().difference(lastActive!) < PresenceService.onlineThreshold;
 
   String get displayName {
     final combined = '$firstName $lastName'.trim();

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'firebase_options.dart';
 import 'screens/auth_screens/splash_screen.dart';
 import 'core/colors/app_colors.dart';
+import 'core/services/presence_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,6 +13,7 @@ Future<void> main() async {
         options: DefaultFirebaseOptions.currentPlatform,
       );
     }
+    PresenceService().initialize();
   } catch (error, stackTrace) {
     debugPrint('Firebase initialization failed: $error');
     debugPrintStack(stackTrace: stackTrace);
