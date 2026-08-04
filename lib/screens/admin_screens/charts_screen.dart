@@ -7,8 +7,32 @@ import 'package:flutter/material.dart';
 import '../../core/colors/app_colors.dart';
 import '../../core/services/presence_service.dart';
 
-class ChartsScreen extends StatelessWidget {
+class ChartsScreen extends StatefulWidget {
   const ChartsScreen({super.key});
+
+  @override
+  State<ChartsScreen> createState() => _ChartsScreenState();
+}
+
+class _ChartsScreenState extends State<ChartsScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _query = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      setState(() {
+        _query = _searchController.text.trim().toLowerCase();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +64,42 @@ class ChartsScreen extends StatelessWidget {
                         ),
                       ),
                     ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.07),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: Colors.white.withOpacity(0.1)),
+                    ),
+                    child: TextField(
+                      controller: _searchController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: 'Search charts (e.g. gender, status, online)',
+                        hintStyle: const TextStyle(color: Colors.white54),
+                        prefixIcon: const Icon(
+                          Icons.search,
+                          color: Colors.white70,
+                        ),
+                        suffixIcon: _query.isEmpty
+                            ? null
+                            : IconButton(
+                                icon: const Icon(
+                                  Icons.clear,
+                                  color: Colors.white54,
+                                ),
+                                onPressed: () => _searchController.clear(),
+                              ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 14,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
                 Expanded(
@@ -88,64 +148,84 @@ class ChartsScreen extends StatelessWidget {
                         }
                       }
 
-                      return ListView(
+                      final allCharts = <_ChartCard>[
+                        _ChartCard(
+                          title: 'Gender Distribution',
+                          sections: [
+                            _Slice(
+                              'Male',
+                              genderCounts['male'] ?? 0,
+                              AppColors.glowCyan,
+                            ),
+                            _Slice(
+                              'Female',
+                              genderCounts['female'] ?? 0,
+                              AppColors.glowPink,
+                            ),
+                            if ((genderCounts['unspecified'] ?? 0) > 0)
+                              _Slice(
+                                'Unspecified',
+                                genderCounts['unspecified'] ?? 0,
+                                Colors.white38,
+                              ),
+                          ],
+                        ),
+                        _ChartCard(
+                          title: 'Access Status',
+                          sections: [
+                            _Slice(
+                              'Approved',
+                              statusCounts['approved'] ?? 0,
+                              AppColors.successLight,
+                            ),
+                            _Slice(
+                              'Pending',
+                              statusCounts['pending'] ?? 0,
+                              AppColors.warning,
+                            ),
+                            _Slice(
+                              'Rejected',
+                              statusCounts['rejected'] ?? 0,
+                              AppColors.errorLight,
+                            ),
+                          ],
+                        ),
+                        _ChartCard(
+                          title: 'Online Presence',
+                          sections: [
+                            _Slice(
+                              'Online',
+                              onlineCount,
+                              AppColors.successLight,
+                            ),
+                            _Slice('Offline', offlineCount, Colors.white38),
+                          ],
+                        ),
+                      ];
+
+                      final filteredCharts = _query.isEmpty
+                          ? allCharts
+                          : allCharts
+                                .where(
+                                  (card) =>
+                                      card.title.toLowerCase().contains(_query),
+                                )
+                                .toList();
+
+                      if (filteredCharts.isEmpty) {
+                        return Center(
+                          child: Text(
+                            'No charts match "$_query".',
+                            style: const TextStyle(color: Colors.white54),
+                          ),
+                        );
+                      }
+
+                      return ListView.separated(
                         padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
-                        children: [
-                          _ChartCard(
-                            title: 'Gender Distribution',
-                            sections: [
-                              _Slice(
-                                'Male',
-                                genderCounts['male'] ?? 0,
-                                AppColors.glowCyan,
-                              ),
-                              _Slice(
-                                'Female',
-                                genderCounts['female'] ?? 0,
-                                AppColors.glowPink,
-                              ),
-                              if ((genderCounts['unspecified'] ?? 0) > 0)
-                                _Slice(
-                                  'Unspecified',
-                                  genderCounts['unspecified'] ?? 0,
-                                  Colors.white38,
-                                ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          _ChartCard(
-                            title: 'Access Status',
-                            sections: [
-                              _Slice(
-                                'Approved',
-                                statusCounts['approved'] ?? 0,
-                                AppColors.successLight,
-                              ),
-                              _Slice(
-                                'Pending',
-                                statusCounts['pending'] ?? 0,
-                                AppColors.warning,
-                              ),
-                              _Slice(
-                                'Rejected',
-                                statusCounts['rejected'] ?? 0,
-                                AppColors.errorLight,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          _ChartCard(
-                            title: 'Online Presence',
-                            sections: [
-                              _Slice(
-                                'Online',
-                                onlineCount,
-                                AppColors.successLight,
-                              ),
-                              _Slice('Offline', offlineCount, Colors.white38),
-                            ],
-                          ),
-                        ],
+                        itemCount: filteredCharts.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 20),
+                        itemBuilder: (context, index) => filteredCharts[index],
                       );
                     },
                   ),
