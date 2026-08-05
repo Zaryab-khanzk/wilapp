@@ -1,7 +1,5 @@
 import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
-
 import '../colors/app_colors.dart';
 
 class AppLoader extends StatefulWidget {
