@@ -238,11 +238,15 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
   }
 
   Widget _buildFilterRow() {
+    final validRoleValue = ['all', 'user'].contains(_roleFilter)
+        ? _roleFilter
+        : 'all';
+
     return Row(
       children: [
         Expanded(
           child: DropdownButtonFormField<String>(
-            value: _roleFilter,
+            value: validRoleValue,
             dropdownColor: AppColors.dropdownBackground,
             decoration: _dropdownDecoration('Role'),
             iconEnabledColor: Colors.white70,
@@ -250,7 +254,6 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
             items: const [
               DropdownMenuItem(value: 'all', child: Text('All Roles')),
               DropdownMenuItem(value: 'user', child: Text('User')),
-              DropdownMenuItem(value: 'superadmin', child: Text('SuperAdmin')),
             ],
             onChanged: (value) {
               setState(() {
