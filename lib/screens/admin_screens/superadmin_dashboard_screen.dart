@@ -86,6 +86,11 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
   }
 
   bool _matchesFilters(_DashboardUser user) {
+    // Exclude superadmins from the list
+    if (user.role == 'superadmin') {
+      return false;
+    }
+
     final roleMatches = _roleFilter == 'all' || user.role == _roleFilter;
     final statusMatches =
         _statusFilter == 'all' || user.status == _statusFilter;
