@@ -579,8 +579,6 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
                             ],
                           ),
                         ),
-
-                        // Hamburger Menu replace standalone Logout Button
                         PopupMenuButton<String>(
                           icon: const Icon(Icons.menu, color: Colors.white),
                           color: AppColors.dropdownBackground,
@@ -766,6 +764,7 @@ class _DashboardUser {
   final String sex;
   final DateTime? createdAt;
   final DateTime? lastActive;
+  final bool isOnlineFromDb;
 
   const _DashboardUser({
     required this.reference,
@@ -779,6 +778,7 @@ class _DashboardUser {
     required this.sex,
     required this.createdAt,
     required this.lastActive,
+    required this.isOnlineFromDb,
   });
 
   factory _DashboardUser.fromDoc(
@@ -812,12 +812,16 @@ class _DashboardUser {
       sex: (data['sex']?.toString() ?? '').toLowerCase(),
       createdAt: createdAt,
       lastActive: lastActive,
+      isOnlineFromDb: data['isOnline'] == true,
     );
   }
 
-  bool get isOnline =>
-      lastActive != null &&
-      DateTime.now().difference(lastActive!) < PresenceService.onlineThreshold;
+  bool get isOnline {
+    if (!isOnlineFromDb) return false;
+    if (lastActive == null) return true;
+    return DateTime.now().difference(lastActive!).abs() <
+        PresenceService.onlineThreshold;
+  }
 
   String get displayName {
     final combined = '$firstName $lastName'.trim();
