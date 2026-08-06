@@ -140,10 +140,15 @@ class _ChartsScreenState extends State<ChartsScreen> {
                         if (rawLastActive is Timestamp) {
                           lastActive = rawLastActive.toDate();
                         }
+
+                        final isOnlineFromDb = data['isOnline'] == true;
+
                         final isOnline =
+                            isOnlineFromDb &&
                             lastActive != null &&
                             DateTime.now().difference(lastActive) <
                                 PresenceService.onlineThreshold;
+
                         if (isOnline) {
                           onlineCount++;
                         } else {
